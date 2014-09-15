@@ -15,7 +15,7 @@ class Handler(object):
         term = ''
         for i in range(0, 24):
             for j in range(0, 80):
-                term += self.vt.cell(i, j).contents.contents()
+                term += self.vt.cell(i, j).contents()
             term += "\n"
 
         return term[:-1]

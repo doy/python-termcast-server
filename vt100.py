@@ -77,4 +77,4 @@ class vt100(object):
         return vt100_process_string(self.vt, string, len(string))
 
     def cell(self, x, y):
-        return vt100_cell_at(self.vt, x, y)
+        return vt100_cell_at(self.vt, x, y).contents
