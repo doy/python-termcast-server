@@ -81,6 +81,7 @@ class Connection(object):
         if connection_id != self.connection_id:
             return
         self.publisher.notify("new_data", self.connection_id, self.handler.buf, b'')
+        self.client.send("msg watcher connected")
 
     def request_get_streamers(self):
         return {
