@@ -1,4 +1,5 @@
 import paramiko
+import threading
 import time
 
 class Connection(object):
@@ -22,8 +23,10 @@ class Connection(object):
         self.watching_id = None
 
     def run(self):
-        self.transport.start_server(server=Server())
+        self.server = Server()
+        self.transport.start_server(server=self.server)
         self.chan = self.transport.accept(None)
+        self.server.pty_event.wait()
 
         while True:
             self.initialized = False
@@ -87,20 +90,39 @@ class Connection(object):
             key = streamer["key"]
             name = streamer["name"].decode('utf-8')
             size = "(%dx%d)" % (streamer["cols"], streamer["rows"])
+            size_pre = ""
+            size_post = ""
+            if streamer["cols"] > self.server.cols or streamer["rows"] > self.server.rows:
+                size_pre = "\033[31m"
+                size_post = "\033[m"
             idle = streamer["idle"]
             self.chan.send(
-                "\033[%dH%s) %-20s  %-15s  %-15s" % (
-                    row, key, name, size, idle
+                "\033[%dH%s) %-20s  %s%-15s%s  %-15s" % (
+                    row, key, name, size_pre, size, size_post, idle
                 )
             )
             row += 1
         self.chan.send("\033[%dHChoose a stream: " % (row + 1))
 
 class Server(paramiko.ServerInterface):
+    def __init__(self):
+        super()
+        self.cols = 80
+        self.rows = 24
+        self.pty_event = threading.Event()
+
     def check_channel_request(self, kind, chanid):
         return paramiko.OPEN_SUCCEEDED
 
     def check_channel_pty_request(self, channel, term, width, height, pixelwidth, pixelheight, modes):
+        self.cols = width
+        self.rows = height
+        self.pty_event.set()
+        return True
+
+    def check_channel_window_change_request(self, channel, width, height, pixelwidth, pixelheight):
+        self.cols = width
+        self.rows = height
         return True
 
     def check_channel_shell_request(self, channel):
