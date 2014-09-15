@@ -52,6 +52,9 @@ class Connection(object):
         streamers = self.publisher.request_all("get_streamers")
         for streamer in streamers:
             key = chr(key_code)
+            if key == "q":
+                key_code += 1
+                key = chr(key_code)
             streamer["key"] = key
             keymap[key] = streamer["id"]
             key_code += 1
