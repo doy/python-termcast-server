@@ -1,11 +1,14 @@
+import json
 import re
 
 import vt100
 
 class Handler(object):
-    def __init__(self):
+    def __init__(self, rows, cols):
+        self.rows = rows
+        self.cols = cols
         self.buf = b''
-        self.vt = vt100.vt100()
+        self.vt = vt100.vt100(rows, cols)
 
     def process(self, data):
         self.buf += data
@@ -13,8 +16,8 @@ class Handler(object):
 
     def get_term(self):
         term = ''
-        for i in range(0, 24):
-            for j in range(0, 80):
+        for i in range(0, self.rows):
+            for j in range(0, self.cols):
                 term += self.vt.cell(i, j).contents()
             term += "\n"
 
@@ -44,8 +47,20 @@ class Connection(object):
             return
 
         print(b"got auth: " + auth)
-        self.handler = Handler()
         self.client.send(b"hello, " + m.group(1) + b"\n")
+
+        extra_data = {}
+        extra_data_re = re.compile(b'^\033\[H\000([^\377]*)\377\033\[H\033\[2J(.*)$')
+        m = extra_data_re.match(buf)
+        if m is not None:
+            extra_data_json = m.group(1)
+            extra_data = json.loads(extra_data_json.decode('utf-8'))
+            buf = m.group(2)
+
+        if "geometry" in extra_data:
+            self.handler = Handler(extra_data["geometry"][1], extra_data["geometry"][0])
+        else:
+            self.handler = Handler(24, 80)
 
         self.handler.process(buf)
         while True:

@@ -50,11 +50,8 @@ class vt100_cell(Structure):
     def contents(self):
         return self._contents[:self.len].decode('utf-8')
 
-new_prototype = CFUNCTYPE(c_void_p)
+new_prototype = CFUNCTYPE(c_void_p, c_int, c_int)
 vt100_new = new_prototype(("vt100_screen_new", libvt100))
-
-set_window_size_prototype = CFUNCTYPE(None, c_void_p)
-vt100_set_window_size = set_window_size_prototype(("vt100_screen_set_window_size", libvt100))
 
 process_string_prototype = CFUNCTYPE(c_int, c_void_p, c_char_p, c_size_t)
 vt100_process_string = process_string_prototype(("vt100_screen_process_string", libvt100))
@@ -66,9 +63,8 @@ delete_prototype = CFUNCTYPE(None, c_void_p)
 vt100_delete = delete_prototype(("vt100_screen_delete", libvt100))
 
 class vt100(object):
-    def __init__(self):
-        self.vt = vt100_new()
-        vt100_set_window_size(self.vt)
+    def __init__(self, rows, cols):
+        self.vt = vt100_new(rows, cols)
 
     def __del__(self):
         vt100_delete(self.vt)
