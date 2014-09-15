@@ -50,6 +50,7 @@ class Connection(object):
         key_code = ord('a')
         keymap = {}
         streamers = self.publisher.request_all("get_streamers")
+        # XXX this will require pagination
         for streamer in streamers:
             key = chr(key_code)
             if key == "q":
