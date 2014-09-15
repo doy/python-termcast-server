@@ -20,7 +20,9 @@ class Connection(object):
         chan = self.transport.accept(None)
 
         if len(termcast_connections) > 0:
-            chan.send(termcast_connections.values().__iter__().__next__().handler.get_term())
+            connection = termcast_connections.values().__iter__().__next__()
+            term_contents = connection.handler.get_term()
+            chan.send(term_contents.replace("\n", "\r\n"))
         else:
             chan.send("no data for doy\r\n")
 
