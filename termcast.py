@@ -5,7 +5,7 @@ import re
 import vt100
 
 auth_re = re.compile(b'^hello ([^ ]+) ([^ ]+)$')
-extra_data_re = re.compile(b'^\033\[H\000([^\377]*)\377\033\[H\033\[2J(.*)$')
+extra_data_re = re.compile(b'\033\[H(\000([^\377]*)\377)\033\[H\033\[2J')
 
 class Handler(object):
     def __init__(self, rows, cols):
@@ -17,10 +17,30 @@ class Handler(object):
         self.vt = vt100.vt100(rows, cols)
 
     def process(self, data):
+        # XXX this will break if the data is split between reads, but i don't
+        # know if there's anything we can do about this, because we'll have
+        # already processed the beginning of it if that happens. we might need
+        # some better framing which allows us to detect the start of an out of
+        # band section even when the end hasn't been received yet
+        extra_data = {}
+        while True:
+            m = extra_data_re.search(data)
+            if m is None:
+                break
+            extra_data_json = m.group(2)
+            extra_data = json.loads(extra_data_json.decode('utf-8'))
+            data = data[:m.start(1)] + data[m.end(1):]
+        if "geometry" in extra_data:
+            self.rows = extra_data["geometry"][1]
+            self.cols = extra_data["geometry"][0]
+            self.vt.set_window_size(self.rows, self.cols)
+
         self.buf += data
+
         clear = self.buf.rfind(b"\033[2J")
         if clear != -1:
             self.buf = self.buf[clear + 4:]
+
         self.vt.process(data)
         self.idle_since = time.time()
 
@@ -100,9 +120,9 @@ class Connection(object):
         extra_data = {}
         m = extra_data_re.match(buf)
         if m is not None:
-            extra_data_json = m.group(1)
+            extra_data_json = m.group(2)
             extra_data = json.loads(extra_data_json.decode('utf-8'))
-            buf = m.group(2)
+            buf = buf[len(m.group(0)):]
 
         if "geometry" in extra_data:
             self.handler = Handler(extra_data["geometry"][1], extra_data["geometry"][0])
