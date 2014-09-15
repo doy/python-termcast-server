@@ -37,6 +37,7 @@ class Connection(object):
             while True:
                 c = self.chan.recv(1)
                 if c == b'q':
+                    self.publisher.notify("viewer_disconnect", self.watching_id)
                     break
 
         self.chan.close()
