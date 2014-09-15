@@ -44,18 +44,16 @@ class Connection(object):
         self.chan.close()
 
     def select_stream(self):
-        self.chan.send("\033[2J\033[HWelcome to Termcast!")
-        row = 3
         key_code = ord('a')
         keymap = {}
-        for streamer in self.publisher.request_all("get_streamers"):
+        streamers = self.publisher.request_all("get_streamers")
+        for streamer in streamers:
             key = chr(key_code)
+            streamer["key"] = key
             keymap[key] = streamer["id"]
-            self.chan.send("\033[%dH%s) %s" % (row, key, streamer["name"].decode('utf-8')))
-            row += 1
             key_code += 1
 
-        self.chan.send("\033[%dHChoose a stream: " % (row + 1))
+        self._display_streamer_screen(streamers)
 
         c = self.chan.recv(1).decode('utf-8')
         if c in keymap:
@@ -76,6 +74,14 @@ class Connection(object):
             self.initialized = True
 
         self.chan.send(data)
+
+    def _display_streamer_screen(self, streamers):
+        self.chan.send("\033[2J\033[HWelcome to Termcast!")
+        row = 3
+        for streamer in streamers:
+            self.chan.send("\033[%dH%s) %s" % (row, streamer["key"], streamer["name"].decode('utf-8')))
+            row += 1
+        self.chan.send("\033[%dHChoose a stream: " % (row + 1))
 
 class Server(paramiko.ServerInterface):
     def check_channel_request(self, kind, chanid):
