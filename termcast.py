@@ -93,4 +93,7 @@ class Connection(object):
         return {
             "name": self.name,
             "id": self.connection_id,
+            "rows": self.handler.rows,
+            "cols": self.handler.cols,
+            "idle": "0s", # XXX
         }

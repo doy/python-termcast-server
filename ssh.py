@@ -77,9 +77,22 @@ class Connection(object):
 
     def _display_streamer_screen(self, streamers):
         self.chan.send("\033[2J\033[HWelcome to Termcast!")
-        row = 3
+        self.chan.send(
+            "\033[3H   %-20s  %-15s  %-15s" % (
+                "User", "Terminal size", "Idle time",
+            )
+        )
+        row = 4
         for streamer in streamers:
-            self.chan.send("\033[%dH%s) %s" % (row, streamer["key"], streamer["name"].decode('utf-8')))
+            key = streamer["key"]
+            name = streamer["name"].decode('utf-8')
+            size = "(%dx%d)" % (streamer["cols"], streamer["rows"])
+            idle = streamer["idle"]
+            self.chan.send(
+                "\033[%dH%s) %-20s  %-15s  %-15s" % (
+                    row, key, name, size, idle
+                )
+            )
             row += 1
         self.chan.send("\033[%dHChoose a stream: " % (row + 1))
 
