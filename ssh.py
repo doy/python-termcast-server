@@ -25,7 +25,7 @@ class Connection(object):
     def run(self):
         self.server = Server()
         self.transport.start_server(server=self.server)
-        self.chan = self.transport.accept(None)
+        self.chan = self.transport.accept(10)
         self.server.pty_event.wait()
 
         while True:
