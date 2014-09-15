@@ -26,7 +26,10 @@ class Connection(object):
         # id in here
         self.publisher.notify("new_viewer", "some-stream")
 
-        time.sleep(5)
+        while True:
+            c = self.chan.recv(1)
+            if c == b'q':
+                break
         self.chan.close()
 
     def msg_new_data(self, connection_id, prev_buf, data):
