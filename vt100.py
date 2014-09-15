@@ -62,6 +62,7 @@ vt100_cell_at = cell_at_prototype(("vt100_screen_cell_at", libvt100))
 delete_prototype = CFUNCTYPE(None, c_void_p)
 vt100_delete = delete_prototype(("vt100_screen_delete", libvt100))
 
+# XXX process/cell need mutexes
 class vt100(object):
     def __init__(self, rows, cols):
         self.vt = vt100_new(rows, cols)
