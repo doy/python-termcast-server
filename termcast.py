@@ -4,6 +4,9 @@ import re
 
 import vt100
 
+auth_re = re.compile(b'^hello ([^ ]+) ([^ ]+)$')
+extra_data_re = re.compile(b'^\033\[H\000([^\377]*)\377\033\[H\033\[2J(.*)$')
+
 class Handler(object):
     def __init__(self, rows, cols):
         self.created_at = time.time()
@@ -85,7 +88,6 @@ class Connection(object):
 
         buf = buf[pos+1:]
 
-        auth_re = re.compile(b'^hello ([^ ]+) ([^ ]+)$')
         m = auth_re.match(auth)
         if m is None:
             print("no authentication found (%s)" % auth)
@@ -96,7 +98,6 @@ class Connection(object):
         self.client.send(b"hello, " + self.name + b"\n")
 
         extra_data = {}
-        extra_data_re = re.compile(b'^\033\[H\000([^\377]*)\377\033\[H\033\[2J(.*)$')
         m = extra_data_re.match(buf)
         if m is not None:
             extra_data_json = m.group(1)
