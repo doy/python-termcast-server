@@ -44,7 +44,7 @@ class Connection(object):
         self.chan.close()
 
     def select_stream(self):
-        self.chan.send("\033[2J\033[HTermcast")
+        self.chan.send("\033[2J\033[HWelcome to Termcast!")
         row = 3
         key_code = ord('a')
         keymap = {}
@@ -62,6 +62,7 @@ class Connection(object):
             self.chan.send("\033[2J\033[H")
             return keymap[c]
         elif c == 'q':
+            self.chan.send("\r\n")
             return None
         else:
             return self.select_stream()
