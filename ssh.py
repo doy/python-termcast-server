@@ -2,9 +2,9 @@ import paramiko
 import time
 
 class Connection(object):
-    def __init__(self, client, connection_id, publisher):
+    def __init__(self, client, connection_id, publisher, rsa_keyfile):
         self.transport = paramiko.Transport(client)
-        self.transport.add_server_key(paramiko.RSAKey(filename='test_rsa.key'))
+        self.transport.add_server_key(paramiko.RSAKey(filename=rsa_keyfile))
         self.connection_id = connection_id
         self.publisher = publisher
         self.initialized = False

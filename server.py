@@ -1,4 +1,5 @@
 import socket
+import sys
 import threading
 import uuid
 
@@ -7,8 +8,9 @@ import ssh
 import termcast
 
 class Server(object):
-    def __init__(self):
+    def __init__(self, rsa_keyfile):
         self.publisher = pubsub.Publisher()
+        self.rsa_keyfile = rsa_keyfile
 
     def listen(self):
         ssh_sock = self._open_socket(2200)
@@ -36,7 +38,7 @@ class Server(object):
     def handle_ssh_connection(self, client):
         self._handle_connection(
             client,
-            lambda client, connection_id: ssh.Connection(client, connection_id, self.publisher)
+            lambda client, connection_id: ssh.Connection(client, connection_id, self.publisher, self.rsa_keyfile)
         )
 
     def handle_termcast_connection(self, client):
@@ -71,5 +73,5 @@ class Server(object):
         return sock
 
 if __name__ == '__main__':
-    server = Server()
+    server = Server(sys.argv[1])
     server.listen()
