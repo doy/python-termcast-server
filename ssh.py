@@ -13,14 +13,20 @@ class Connection(object):
         self.transport.start_server(server=Server())
         self.chan = self.transport.accept(None)
 
-        self.watching_id = self.select_stream()
-
-        self.publisher.notify("new_viewer", self.watching_id)
-
         while True:
-            c = self.chan.recv(1)
-            if c == b'q':
+            self.initialized = False
+
+            self.watching_id = self.select_stream()
+            if self.watching_id is None:
                 break
+
+            self.publisher.notify("new_viewer", self.watching_id)
+
+            while True:
+                c = self.chan.recv(1)
+                if c == b'q':
+                    break
+
         self.chan.close()
 
     def select_stream(self):
@@ -41,6 +47,8 @@ class Connection(object):
         if c in keymap:
             self.chan.send("\033[2J\033[H")
             return keymap[c]
+        elif c == 'q':
+            return None
         else:
             return self.select_stream()
 
