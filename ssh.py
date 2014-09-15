@@ -11,20 +11,19 @@ class Handler(object):
         pass
 
 class Connection(object):
-    def __init__(self, client, connection_id):
+    def __init__(self, client, connection_id, publisher):
         self.transport = paramiko.Transport(client)
         self.transport.add_server_key(paramiko.RSAKey(filename='test_rsa.key'))
+        self.connection_id = connection_id
+        self.publisher = publisher
 
-    def run(self, termcast_connections):
+    def run(self):
         self.transport.start_server(server=Server())
         chan = self.transport.accept(None)
 
-        if len(termcast_connections) > 0:
-            connection = termcast_connections.values().__iter__().__next__()
-            term_contents = connection.handler.get_term()
-            chan.send(term_contents.replace("\n", "\r\n"))
-        else:
-            chan.send("no data for doy\r\n")
+        # XXX need to have the user select a stream, and then pass the stream's
+        # id in here
+        self.publisher.publish("new_viewer", chan, "some-random-id")
 
         time.sleep(5)
         chan.close()
@@ -46,4 +45,3 @@ class Server(paramiko.ServerInterface):
 
     def get_allowed_auths(self, username):
         return "password"
-

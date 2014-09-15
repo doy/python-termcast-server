@@ -2,13 +2,13 @@ import socket
 import threading
 import uuid
 
+import pubsub
 import ssh
 import termcast
 
 class Server(object):
     def __init__(self):
-        self.termcast_connections = {}
-        self.ssh_connections = {}
+        self.publisher = pubsub.Publisher()
 
     def listen(self):
         ssh_sock = self._open_socket(2200)
@@ -36,17 +36,13 @@ class Server(object):
     def handle_ssh_connection(self, client):
         self._handle_connection(
             client,
-            self.ssh_connections,
-            self.termcast_connections,
-            lambda client, connection_id: ssh.Connection(client, connection_id)
+            lambda client, connection_id: ssh.Connection(client, connection_id, self.publisher)
         )
 
     def handle_termcast_connection(self, client):
         self._handle_connection(
             client,
-            self.termcast_connections,
-            self.ssh_connections,
-            lambda client, connection_id: termcast.Connection(client, connection_id)
+            lambda client, connection_id: termcast.Connection(client, connection_id, self.publisher)
         )
 
     def _wait_for_connection(self, sock, cb):
@@ -61,12 +57,12 @@ class Server(object):
 
             threading.Thread(target=cb, args=(client,)).start()
 
-    def _handle_connection(self, client, connection_store, other_store, cb):
+    def _handle_connection(self, client, cb):
         connection_id = uuid.uuid4().hex
         connection = cb(client, connection_id)
-        connection_store[connection_id] = connection
-        connection.run(other_store)
-        del connection_store[connection_id]
+        self.publisher.subscribe(connection)
+        connection.run()
+        self.publisher.unsubscribe(connection)
 
     def _open_socket(self, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

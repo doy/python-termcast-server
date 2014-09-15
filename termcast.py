@@ -24,10 +24,12 @@ class Handler(object):
         return term[:-1]
 
 class Connection(object):
-    def __init__(self, client, connection_id):
+    def __init__(self, client, connection_id, publisher):
         self.client = client
+        self.connection_id = connection_id
+        self.publisher = publisher
 
-    def run(self, ssh_connections):
+    def run(self):
         buf = b''
         while len(buf) < 1024 and b"\n" not in buf:
             buf += self.client.recv(1024)
@@ -69,3 +71,10 @@ class Connection(object):
                 self.handler.process(buf)
             else:
                 return
+
+    def msg_new_viewer(self, sock, connection_id):
+        # XXX restore this once we start passing in meaningful connection ids
+        # if connection_id != self.connection_id:
+        #     return
+        term_contents = self.handler.get_term()
+        sock.send(term_contents.replace("\n", "\r\n"))
