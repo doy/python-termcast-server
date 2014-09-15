@@ -1,3 +1,4 @@
+import time
 import json
 import re
 
@@ -5,6 +6,8 @@ import vt100
 
 class Handler(object):
     def __init__(self, rows, cols):
+        self.created_at = time.time()
+        self.idle_since = time.time()
         self.rows = rows
         self.cols = cols
         self.buf = b''
@@ -16,6 +19,7 @@ class Handler(object):
         if clear != -1:
             self.buf = self.buf[clear + 4:]
         self.vt.process(data)
+        self.idle_since = time.time()
 
     def get_term(self):
         term = ''
@@ -25,6 +29,39 @@ class Handler(object):
             term += "\n"
 
         return term[:-1]
+
+    def total_time(self):
+        return self._human_readable_duration(time.time() - self.created_at)
+
+    def idle_time(self):
+        return self._human_readable_duration(time.time() - self.idle_since)
+
+    def _human_readable_duration(self, duration):
+        days = 0
+        hours = 0
+        minutes = 0
+        seconds = 0
+
+        if duration > 60*60*24:
+            days = duration // (60*60*24)
+            duration -= days * 60*60*24
+        if duration > 60*60:
+            hours = duration // (60*60)
+            duration -= hours * 60*60
+        if duration > 60:
+            minutes = duration // 60
+            duration -= minutes * 60
+        seconds = duration
+
+        ret = "%02ds" % seconds
+        if minutes > 0 or hours > 0 or days > 0:
+            ret = ("%02dm" % minutes) + ret
+        if hours > 0 or days > 0:
+            ret = ("%02dh" % hours) + ret
+        if days > 0:
+            ret = ("%dd" % days) + ret
+
+        return ret
 
 class Connection(object):
     def __init__(self, client, connection_id, publisher):
@@ -95,5 +132,6 @@ class Connection(object):
             "id": self.connection_id,
             "rows": self.handler.rows,
             "cols": self.handler.cols,
-            "idle": "0s", # XXX
+            "idle_time": self.handler.idle_time(),
+            "total_time": self.handler.total_time(),
         }

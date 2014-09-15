@@ -81,8 +81,8 @@ class Connection(object):
     def _display_streamer_screen(self, streamers):
         self.chan.send("\033[2J\033[HWelcome to Termcast!")
         self.chan.send(
-            "\033[3H   %-20s  %-15s  %-15s" % (
-                "User", "Terminal size", "Idle time",
+            "\033[3H   %-20s  %-15s  %-15s  %-15s" % (
+                "User", "Terminal size", "Idle time", "Total time"
             )
         )
         row = 4
@@ -95,10 +95,11 @@ class Connection(object):
             if streamer["cols"] > self.server.cols or streamer["rows"] > self.server.rows:
                 size_pre = "\033[31m"
                 size_post = "\033[m"
-            idle = streamer["idle"]
+            idle = streamer["idle_time"]
+            total = streamer["total_time"]
             self.chan.send(
-                "\033[%dH%s) %-20s  %s%-15s%s  %-15s" % (
-                    row, key, name, size_pre, size, size_post, idle
+                "\033[%dH%s) %-20s  %s%-15s%s  %-15s  %-15s" % (
+                    row, key, name, size_pre, size, size_post, idle, total
                 )
             )
             row += 1
