@@ -52,7 +52,8 @@ class Connection(object):
             return
 
         print(b"got auth: " + auth)
-        self.client.send(b"hello, " + m.group(1) + b"\n")
+        self.name = m.group(1)
+        self.client.send(b"hello, " + self.name + b"\n")
 
         extra_data = {}
         extra_data_re = re.compile(b'^\033\[H\000([^\377]*)\377\033\[H\033\[2J(.*)$')
@@ -81,3 +82,9 @@ class Connection(object):
         # if connection_id != self.connection_id:
         #     return
         self.publisher.notify("new_data", self.connection_id, self.handler.buf, b'')
+
+    def request_get_streamers(self):
+        return {
+            "name": self.name,
+            "id": self.connection_id,
+        }

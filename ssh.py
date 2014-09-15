@@ -1,15 +1,6 @@
 import paramiko
 import time
 
-class Handler(object):
-    def __init__(self, sock, connections):
-        self.sock = sock
-        self.connections = connections
-        self.which
-
-    def show(self):
-        pass
-
 class Connection(object):
     def __init__(self, client, connection_id, publisher):
         self.transport = paramiko.Transport(client)
@@ -22,15 +13,38 @@ class Connection(object):
         self.transport.start_server(server=Server())
         self.chan = self.transport.accept(None)
 
+        self.watching_id = self.select_stream()
+
         # XXX need to have the user select a stream, and then pass the stream's
         # id in here
-        self.publisher.notify("new_viewer", "some-stream")
+        self.publisher.notify("new_viewer", self.watching_id)
 
         while True:
             c = self.chan.recv(1)
             if c == b'q':
                 break
         self.chan.close()
+
+    def select_stream(self):
+        self.chan.send("\033[2J\033[HTermcast")
+        row = 3
+        key_code = ord('a')
+        keymap = {}
+        for streamer in self.publisher.request_all("get_streamers"):
+            key = chr(key_code)
+            keymap[key] = streamer["id"]
+            self.chan.send("\033[%dH%s) %s" % (row, key, streamer["name"].decode('utf-8')))
+            row += 1
+            key_code += 1
+
+        self.chan.send("\033[%dHChoose a stream: " % (row + 1))
+
+        c = self.chan.recv(1).decode('utf-8')
+        if c in keymap:
+            self.chan.send("\033[2J\033[H")
+            return keymap[c]
+        else:
+            return self.select_stream()
 
     def msg_new_data(self, connection_id, prev_buf, data):
         # XXX uncomment this once we implement stream selection
