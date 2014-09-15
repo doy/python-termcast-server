@@ -19,6 +19,7 @@ class Connection(object):
         self.connection_id = connection_id
         self.publisher = publisher
         self.initialized = False
+        self.watching_id = None
 
     def run(self):
         self.transport.start_server(server=Server())
