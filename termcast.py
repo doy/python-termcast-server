@@ -12,7 +12,7 @@ class Handler(object):
 
     def process(self, data):
         self.buf += data
-        clear = self.buf.rfind("\033[2J")
+        clear = self.buf.rfind(b"\033[2J")
         if clear != -1:
             self.buf = self.buf[clear + 4:]
         self.vt.process(data)
