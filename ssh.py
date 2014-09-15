@@ -27,6 +27,7 @@ class Connection(object):
 
         while True:
             self.initialized = False
+            self.watching_id = None
 
             self.watching_id = self.select_stream()
             if self.watching_id is None:
