@@ -16,18 +16,29 @@ class Connection(object):
         self.transport.add_server_key(paramiko.RSAKey(filename='test_rsa.key'))
         self.connection_id = connection_id
         self.publisher = publisher
+        self.initialized = False
 
     def run(self):
         self.transport.start_server(server=Server())
-        chan = self.transport.accept(None)
+        self.chan = self.transport.accept(None)
 
         # XXX need to have the user select a stream, and then pass the stream's
         # id in here
-        contents = self.publisher.request_one("new_viewer", "some-random-id")
-        chan.send(contents)
+        self.publisher.notify("new_viewer", "some-stream")
 
         time.sleep(5)
-        chan.close()
+        self.chan.close()
+
+    def msg_new_data(self, connection_id, prev_buf, data):
+        # XXX uncomment this once we implement stream selection
+        # if self.watching_id != connection_id:
+        #     return
+
+        if not self.initialized:
+            self.chan.send(prev_buf)
+            self.initialized = True
+
+        self.chan.send(data)
 
 class Server(paramiko.ServerInterface):
     def check_channel_request(self, kind, chanid):

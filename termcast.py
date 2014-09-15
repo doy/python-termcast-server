@@ -71,13 +71,13 @@ class Connection(object):
         while True:
             buf = self.client.recv(1024)
             if len(buf) > 0:
+                self.publisher.notify("new_data", self.connection_id, self.handler.buf, buf)
                 self.handler.process(buf)
             else:
                 return
 
-    def request_new_viewer(self, connection_id):
+    def msg_new_viewer(self, connection_id):
         # XXX restore this once we start passing in meaningful connection ids
         # if connection_id != self.connection_id:
         #     return
-        term_contents = self.handler.get_term()
-        return term_contents.replace("\n", "\r\n")
+        self.publisher.notify("new_data", self.connection_id, self.handler.buf, b'')
