@@ -15,8 +15,6 @@ class Connection(object):
 
         self.watching_id = self.select_stream()
 
-        # XXX need to have the user select a stream, and then pass the stream's
-        # id in here
         self.publisher.notify("new_viewer", self.watching_id)
 
         while True:
@@ -47,9 +45,8 @@ class Connection(object):
             return self.select_stream()
 
     def msg_new_data(self, connection_id, prev_buf, data):
-        # XXX uncomment this once we implement stream selection
-        # if self.watching_id != connection_id:
-        #     return
+        if self.watching_id != connection_id:
+            return
 
         if not self.initialized:
             self.chan.send(prev_buf)

@@ -78,9 +78,8 @@ class Connection(object):
                 return
 
     def msg_new_viewer(self, connection_id):
-        # XXX restore this once we start passing in meaningful connection ids
-        # if connection_id != self.connection_id:
-        #     return
+        if connection_id != self.connection_id:
+            return
         self.publisher.notify("new_data", self.connection_id, self.handler.buf, b'')
 
     def request_get_streamers(self):
