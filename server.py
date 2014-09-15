@@ -8,9 +8,9 @@ import ssh
 import termcast
 
 class Server(object):
-    def __init__(self, rsa_keyfile):
+    def __init__(self, keyfile):
         self.publisher = pubsub.Publisher()
-        self.rsa_keyfile = rsa_keyfile
+        self.keyfile = keyfile
 
     def listen(self):
         ssh_sock = self._open_socket(2200)
@@ -38,7 +38,7 @@ class Server(object):
     def handle_ssh_connection(self, client):
         self._handle_connection(
             client,
-            lambda client, connection_id: ssh.Connection(client, connection_id, self.publisher, self.rsa_keyfile)
+            lambda client, connection_id: ssh.Connection(client, connection_id, self.publisher, self.keyfile)
         )
 
     def handle_termcast_connection(self, client):

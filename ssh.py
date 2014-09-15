@@ -2,9 +2,20 @@ import paramiko
 import time
 
 class Connection(object):
-    def __init__(self, client, connection_id, publisher, rsa_keyfile):
+    def __init__(self, client, connection_id, publisher, keyfile):
         self.transport = paramiko.Transport(client)
-        self.transport.add_server_key(paramiko.RSAKey(filename=rsa_keyfile))
+
+        key = None
+        with open(keyfile) as f:
+            header = f.readline()
+            if header == "-----BEGIN DSA PRIVATE KEY-----\n":
+                key = paramiko.DSSKey(filename=keyfile)
+            elif header == "-----BEGIN RSA PRIVATE KEY-----\n":
+                key = paramiko.RSAKey(filename=keyfile)
+        if key is None:
+            raise Exception("%s doesn't appear to be an SSH keyfile" % keyfile)
+        self.transport.add_server_key(key)
+
         self.connection_id = connection_id
         self.publisher = publisher
         self.initialized = False
