@@ -43,6 +43,9 @@ class Connection(object):
             return
 
         auth = buf[:pos]
+        if auth[-1:] == b"\r":
+            auth = auth[:-1]
+
         buf = buf[pos+1:]
 
         auth_re = re.compile(b'^hello ([^ ]+) ([^ ]+)$')
