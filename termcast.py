@@ -75,9 +75,9 @@ class Connection(object):
             else:
                 return
 
-    def msg_new_viewer(self, sock, connection_id):
+    def request_new_viewer(self, connection_id):
         # XXX restore this once we start passing in meaningful connection ids
         # if connection_id != self.connection_id:
         #     return
         term_contents = self.handler.get_term()
-        sock.send(term_contents.replace("\n", "\r\n"))
+        return term_contents.replace("\n", "\r\n")

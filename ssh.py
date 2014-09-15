@@ -23,7 +23,8 @@ class Connection(object):
 
         # XXX need to have the user select a stream, and then pass the stream's
         # id in here
-        self.publisher.publish("new_viewer", chan, "some-random-id")
+        contents = self.publisher.request_one("new_viewer", "some-random-id")
+        chan.send(contents)
 
         time.sleep(5)
         chan.close()
