@@ -37,9 +37,13 @@ class Handler(object):
             self.cols = extra_data["geometry"][0]
             self.vt.set_window_size(self.rows, self.cols)
 
-        clear = self.buf.rfind(b"\033[2J")
+        clear = self.buf.rfind(b"\033[H\033[J")
         if clear != -1:
-            self.buf = self.buf[clear + 4:]
+            self.buf = self.buf[clear + 6:]
+
+        clear = self.buf.rfind(b"\033[2J\033[H")
+        if clear != -1:
+            self.buf = self.buf[clear + 7:]
 
         self.idle_since = time.time()
 
