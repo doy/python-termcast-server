@@ -41,6 +41,9 @@ class Handler(object):
         if clear != -1:
             self.buf = self.buf[clear + 4:]
 
+        # XXX need to check how much was actually processed here, to avoid
+        # breaking when escape sequences or utf-8 sequences are split across
+        # reads
         self.vt.process(data)
         self.idle_since = time.time()
 
