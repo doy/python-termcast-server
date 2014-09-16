@@ -36,11 +36,13 @@ class Connection(object):
             if self.watching_id is None:
                 break
 
+            print("new viewer watching " + self.watching_id)
             self.publisher.notify("new_viewer", self.watching_id)
 
             while True:
                 c = self.chan.recv(1)
                 if c == b'q':
+                    print("viewer stopped watching " + self.watching_id)
                     self.publisher.notify("viewer_disconnect", self.watching_id)
                     break
 
