@@ -1,6 +1,6 @@
 # Termcast
 
-This is a reimplementation of [termcast.org](termcast.org) in Python, with the
+This is a reimplementation of [termcast.org](http://termcast.org) in Python, with the
 goal of adding features like a web viewer and better authentication options.
 
 # Dependencies
