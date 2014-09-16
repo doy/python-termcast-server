@@ -2,6 +2,12 @@ from ctypes import *
 
 libvt100 = CDLL("libvt100.so")
 
+class vt100_loc(Structure):
+    _fields_ = [
+        ("row", c_int),
+        ("col", c_int),
+    ]
+
 class vt100_rgb_color(Union):
     _fields_ = [
         ("r", c_ubyte),
@@ -62,6 +68,12 @@ vt100_process_string = process_string_prototype(("vt100_screen_process_string", 
 cell_at_prototype = CFUNCTYPE(POINTER(vt100_cell), c_void_p, c_int, c_int)
 vt100_cell_at = cell_at_prototype(("vt100_screen_cell_at", libvt100))
 
+get_string_formatted_prototype = CFUNCTYPE(None, c_void_p, POINTER(vt100_loc), POINTER(vt100_loc), POINTER(c_char_p), POINTER(c_size_t))
+vt100_get_string_formatted = get_string_formatted_prototype(("vt100_screen_get_string_formatted", libvt100))
+
+get_string_plaintext_prototype = CFUNCTYPE(None, c_void_p, POINTER(vt100_loc), POINTER(vt100_loc), POINTER(c_char_p), POINTER(c_size_t))
+vt100_get_string_plaintext = get_string_plaintext_prototype(("vt100_screen_get_string_plaintext", libvt100))
+
 delete_prototype = CFUNCTYPE(None, c_void_p)
 vt100_delete = delete_prototype(("vt100_screen_delete", libvt100))
 
@@ -78,6 +90,30 @@ class vt100(object):
 
     def process(self, string):
         return vt100_process_string(self.vt, string, len(string))
+
+    def get_string_formatted(self, row_start, col_start, row_end, col_end):
+        outstr = c_char_p()
+        outlen = c_size_t()
+        vt100_get_string_formatted(
+            self.vt,
+            byref(vt100_loc(row_start, col_start)),
+            byref(vt100_loc(row_end, col_end)),
+            byref(outstr),
+            byref(outlen),
+        )
+        return string_at(outstr)[:outlen.value]
+
+    def get_string_plaintext(self, row_start, col_start, row_end, col_end):
+        outstr = c_char_p()
+        outlen = c_size_t()
+        vt100_get_string_plaintext(
+            self.vt,
+            byref(vt100_loc(row_start, col_start)),
+            byref(vt100_loc(row_end, col_end)),
+            byref(outstr),
+            byref(outlen),
+        )
+        return string_at(outstr)[:outlen.value]
 
     def cell(self, x, y):
         return vt100_cell_at(self.vt, x, y).contents
