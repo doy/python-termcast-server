@@ -83,7 +83,7 @@ class Connection(object):
         self.chan.send(data)
 
     def _display_streamer_screen(self, streamers):
-        self.chan.send("\033[2J\033[HWelcome to Termcast!")
+        self.chan.send("\033[2J\033[H\033[mWelcome to Termcast!")
         self.chan.send(
             "\033[3H   %-20s  %-15s  %-15s  %-15s" % (
                 "User", "Terminal size", "Idle time", "Total time"
