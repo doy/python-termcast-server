@@ -5,7 +5,7 @@ import re
 import vt100
 
 auth_re = re.compile(b'^hello ([^ ]+) ([^ ]+)$')
-extra_data_re = re.compile(b'\033\[H(\000([^\377]*)\377)\033\[H\033\[2J')
+extra_data_re = re.compile(b'\033\]499;([^\007]*)\007')
 
 class Handler(object):
     def __init__(self, rows, cols):
@@ -27,9 +27,9 @@ class Handler(object):
             m = extra_data_re.search(data)
             if m is None:
                 break
-            extra_data_json = m.group(2)
+            extra_data_json = m.group(1)
             extra_data = json.loads(extra_data_json.decode('utf-8'))
-            data = data[:m.start(1)] + data[m.end(1):]
+            data = data[:m.start(0)] + data[m.end(0):]
         if "geometry" in extra_data:
             self.rows = extra_data["geometry"][1]
             self.cols = extra_data["geometry"][0]
@@ -123,7 +123,7 @@ class Connection(object):
         extra_data = {}
         m = extra_data_re.match(buf)
         if m is not None:
-            extra_data_json = m.group(2)
+            extra_data_json = m.group(1)
             extra_data = json.loads(extra_data_json.decode('utf-8'))
             buf = buf[len(m.group(0)):]
 
