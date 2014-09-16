@@ -134,9 +134,7 @@ class Server(paramiko.ServerInterface):
         return True
 
     def check_auth_password(self, username, password):
-        if password == "blah":
-            return paramiko.AUTH_SUCCESSFUL
-        return paramiko.AUTH_FAILED
+        return paramiko.AUTH_SUCCESSFUL
 
     def get_allowed_auths(self, username):
         return "password"
