@@ -6,4 +6,4 @@ goal of adding features like a web viewer and better authentication options.
 # Dependencies
 
 * [paramiko](https://pypi.python.org/pypi/paramiko/)
-* [libvt100](https://github.com/doy/libvt100)
+* [vt100](https://pypi.python.org/pypi/vt100)
