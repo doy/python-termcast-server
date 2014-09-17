@@ -61,7 +61,10 @@ class Connection(object):
                         "viewer_disconnect", self.watching_id
                     )
                     self.chan.send(
-                        "\033[1;%d;1;%dr\033[m\033[H\033[2J" % (
+                        ("\033[1;%d;1;%dr"
+                        + "\033[m"
+                        + "\033[?9l\033[?1000l"
+                        + "\033[H\033[2J") % (
                             self.server.rows, self.server.cols
                         )
                     )
