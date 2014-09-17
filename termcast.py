@@ -29,8 +29,12 @@ class Handler(object):
             m = extra_data_re.search(self.buf)
             if m is None:
                 break
-            extra_data_json = m.group(1)
-            extra_data = json.loads(extra_data_json.decode('utf-8'))
+            try:
+                extra_data_json = m.group(1).decode('utf-8')
+                extra_data = json.loads(extra_data_json)
+            except Exception as e:
+                print("failed to parse metadata: %s" % e, file=sys.stderr)
+                pass
             self.buf = self.buf[:m.start(0)] + self.buf[m.end(0):]
         if "geometry" in extra_data:
             self.rows = extra_data["geometry"][1]
@@ -124,8 +128,12 @@ class Connection(object):
         extra_data = {}
         m = extra_data_re.match(buf)
         if m is not None:
-            extra_data_json = m.group(1)
-            extra_data = json.loads(extra_data_json.decode('utf-8'))
+            try:
+                extra_data_json = m.group(1).decode('utf-8')
+                extra_data = json.loads(extra_data_json)
+            except Exception as e:
+                print("failed to parse metadata: %s" % e, file=sys.stderr)
+                pass
             buf = buf[len(m.group(0)):]
 
         if "geometry" in extra_data:

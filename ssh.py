@@ -85,7 +85,7 @@ class Connection(object):
 
         self._display_streamer_screen(streamers)
 
-        c = self.chan.recv(1).decode('utf-8')
+        c = self.chan.recv(1).decode('utf-8', 'ignore')
         if c in keymap:
             self.chan.send("\033[2J\033[H")
             return keymap[c]
@@ -115,7 +115,7 @@ class Connection(object):
         row = 4
         for streamer in streamers:
             key = streamer["key"]
-            name = streamer["name"].decode('utf-8')
+            name = streamer["name"].decode('utf-8', 'replace')
             rows = streamer["rows"]
             cols = streamer["cols"]
             viewers = streamer["viewers"]
