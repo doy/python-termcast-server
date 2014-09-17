@@ -156,6 +156,8 @@ class Connection(object):
         self.client.send(b"msg watcher connected\n")
 
     def msg_viewer_disconnect(self, connection_id):
+        if connection_id != self.connection_id:
+            return
         self.client.send(b"msg watcher disconnected\n")
         self.viewers -= 1
 
