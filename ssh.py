@@ -37,7 +37,11 @@ class Connection(object):
                 break
             self.watching_id = streamer["id"]
 
-            print("new viewer watching %s (%s)" % (streamer["name"], streamer["id"]))
+            print(
+                "new viewer watching %s (%s)" % (
+                    streamer["name"], streamer["id"]
+                )
+            )
             self.chan.send(
                 "\033[1;%d;1;%dr\033[m\033[H\033[2J" % (
                     streamer["rows"], streamer["cols"]
@@ -48,8 +52,14 @@ class Connection(object):
             while True:
                 c = self.chan.recv(1)
                 if c == b'q':
-                    print("viewer stopped watching %s (%s)" % (streamer["name"], streamer["id"]))
-                    self.publisher.notify("viewer_disconnect", self.watching_id)
+                    print(
+                        "viewer stopped watching %s (%s)" % (
+                            streamer["name"], streamer["id"]
+                        )
+                    )
+                    self.publisher.notify(
+                        "viewer_disconnect", self.watching_id
+                    )
                     self.chan.send(
                         "\033[1;%d;1;%dr\033[m\033[H\033[2J" % (
                             self.server.rows, self.server.cols
@@ -106,15 +116,17 @@ class Connection(object):
         for streamer in streamers:
             key = streamer["key"]
             name = streamer["name"].decode('utf-8')
-            size = "(%dx%d)" % (streamer["cols"], streamer["rows"])
-            size_pre = ""
-            size_post = ""
-            if streamer["cols"] > self.server.cols or streamer["rows"] > self.server.rows:
-                size_pre = "\033[31m"
-                size_post = "\033[m"
+            rows = streamer["rows"]
+            cols = streamer["cols"]
             viewers = streamer["viewers"]
             idle = streamer["idle_time"]
             total = streamer["total_time"]
+            size = "(%dx%d)" % (cols, rows)
+            size_pre = ""
+            size_post = ""
+            if cols > self.server.cols or rows > self.server.rows:
+                size_pre = "\033[31m"
+                size_post = "\033[m"
             self.chan.send(
                 "\033[%dH%s) %-20s  %s%-15s%s  %-10s  %-15s  %-15s" % (
                     row, key, name, size_pre, size, size_post,
@@ -134,13 +146,17 @@ class Server(paramiko.ServerInterface):
     def check_channel_request(self, kind, chanid):
         return paramiko.OPEN_SUCCEEDED
 
-    def check_channel_pty_request(self, channel, term, width, height, pixelwidth, pixelheight, modes):
+    def check_channel_pty_request(
+        self, channel, term, width, height, pixelwidth, pixelheight, modes
+    ):
         self.cols = width
         self.rows = height
         self.pty_event.set()
         return True
 
-    def check_channel_window_change_request(self, channel, width, height, pixelwidth, pixelheight):
+    def check_channel_window_change_request(
+        self, channel, width, height, pixelwidth, pixelheight
+    ):
         self.cols = width
         self.rows = height
         return True

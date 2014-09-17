@@ -129,7 +129,9 @@ class Connection(object):
             buf = buf[len(m.group(0)):]
 
         if "geometry" in extra_data:
-            self.handler = Handler(extra_data["geometry"][1], extra_data["geometry"][0])
+            self.handler = Handler(
+                extra_data["geometry"][1], extra_data["geometry"][0]
+            )
         else:
             self.handler = Handler(24, 80)
 
@@ -137,7 +139,9 @@ class Connection(object):
         while True:
             buf = self.client.recv(1024)
             if len(buf) > 0:
-                self.publisher.notify("new_data", self.connection_id, self.handler.buf, buf)
+                self.publisher.notify(
+                    "new_data", self.connection_id, self.handler.buf, buf
+                )
                 self.handler.process(buf)
             else:
                 return
@@ -146,7 +150,9 @@ class Connection(object):
         if connection_id != self.connection_id:
             return
         self.viewers += 1
-        self.publisher.notify("new_data", self.connection_id, self.handler.buf, b'')
+        self.publisher.notify(
+            "new_data", self.connection_id, self.handler.buf, b''
+        )
         self.client.send(b"msg watcher connected\n")
 
     def msg_viewer_disconnect(self, connection_id):

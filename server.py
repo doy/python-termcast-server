@@ -40,13 +40,17 @@ class Server(object):
     def handle_ssh_connection(self, client):
         self._handle_connection(
             client,
-            lambda client, connection_id: ssh.Connection(client, connection_id, self.publisher, self.keyfile)
+            lambda client, connection_id: ssh.Connection(
+                client, connection_id, self.publisher, self.keyfile
+            )
         )
 
     def handle_termcast_connection(self, client):
         self._handle_connection(
             client,
-            lambda client, connection_id: termcast.Connection(client, connection_id, self.publisher)
+            lambda client, connection_id: termcast.Connection(
+                client, connection_id, self.publisher
+            )
         )
 
     def _wait_for_connection(self, sock, cb):
