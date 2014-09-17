@@ -32,18 +32,29 @@ class Connection(object):
             self.initialized = False
             self.watching_id = None
 
-            self.watching_id = self.select_stream()
-            if self.watching_id is None:
+            streamer = self.select_stream()
+            if streamer is None:
                 break
+            self.watching_id = streamer["id"]
 
-            print("new viewer watching " + self.watching_id)
+            print("new viewer watching %s (%s)" % (streamer["name"], streamer["id"]))
+            self.chan.send(
+                "\033[1;%d;1;%dr\033[m\033[H\033[2J" % (
+                    streamer["rows"], streamer["cols"]
+                )
+            )
             self.publisher.notify("new_viewer", self.watching_id)
 
             while True:
                 c = self.chan.recv(1)
                 if c == b'q':
-                    print("viewer stopped watching " + self.watching_id)
+                    print("viewer stopped watching %s (%s)" % (streamer["name"], streamer["id"]))
                     self.publisher.notify("viewer_disconnect", self.watching_id)
+                    self.chan.send(
+                        "\033[1;%d;1;%dr\033[m\033[H\033[2J" % (
+                            self.server.rows, self.server.cols
+                        )
+                    )
                     break
 
         self.chan.close()
@@ -59,7 +70,7 @@ class Connection(object):
                 key_code += 1
                 key = chr(key_code)
             streamer["key"] = key
-            keymap[key] = streamer["id"]
+            keymap[key] = streamer
             key_code += 1
 
         self._display_streamer_screen(streamers)
@@ -85,7 +96,7 @@ class Connection(object):
         self.chan.send(data)
 
     def _display_streamer_screen(self, streamers):
-        self.chan.send("\033[2J\033[H\033[mWelcome to Termcast!")
+        self.chan.send("\033[H\033[2JWelcome to Termcast!")
         self.chan.send(
             "\033[3H   %-20s  %-15s  %-15s  %-15s" % (
                 "User", "Terminal size", "Idle time", "Total time"
