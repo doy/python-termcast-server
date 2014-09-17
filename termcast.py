@@ -94,6 +94,7 @@ class Connection(object):
         self.client = client
         self.connection_id = connection_id
         self.publisher = publisher
+        self.viewers = 0
 
     def run(self):
         buf = b''
@@ -144,11 +145,13 @@ class Connection(object):
     def msg_new_viewer(self, connection_id):
         if connection_id != self.connection_id:
             return
+        self.viewers += 1
         self.publisher.notify("new_data", self.connection_id, self.handler.buf, b'')
         self.client.send(b"msg watcher connected\n")
 
     def msg_viewer_disconnect(self, connection_id):
         self.client.send(b"msg watcher disconnected\n")
+        self.viewers -= 1
 
     def request_get_streamers(self):
         return {
@@ -158,4 +161,5 @@ class Connection(object):
             "cols": self.handler.cols,
             "idle_time": self.handler.idle_time(),
             "total_time": self.handler.total_time(),
+            "viewers": self.viewers,
         }
