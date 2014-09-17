@@ -108,7 +108,7 @@ class Connection(object):
     def _display_streamer_screen(self, streamers):
         self.chan.send("\033[H\033[2JWelcome to Termcast!")
         self.chan.send(
-            "\033[3H   %-20s  %-15s  %-10s  %-15s  %-15s" % (
+            "\033[3H   %-20s  %-15s  %-10s  %-12s  %-15s" % (
                 "User", "Terminal size", "Viewers", "Idle time", "Total time"
             )
         )
@@ -128,7 +128,7 @@ class Connection(object):
                 size_pre = "\033[31m"
                 size_post = "\033[m"
             self.chan.send(
-                "\033[%dH%s) %-20s  %s%-15s%s  %-10s  %-15s  %-15s" % (
+                "\033[%dH%s) %-20s  %s%-15s%s  %-10s  %-12s  %-15s" % (
                     row, key, name, size_pre, size, size_post,
                     viewers, idle, total
                 )
