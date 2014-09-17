@@ -1,3 +1,4 @@
+import signal
 import socket
 import sys
 import threading
@@ -13,6 +14,7 @@ class Server(object):
         self.keyfile = keyfile
 
     def listen(self):
+        signal.signal(signal.SIGPIPE, signal.SIG_IGN)
         ssh_sock = self._open_socket(2200)
         termcast_sock = self._open_socket(2201)
 
