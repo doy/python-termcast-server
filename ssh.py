@@ -26,54 +26,55 @@ class Connection(object):
         self.server = Server()
         self.transport.start_server(server=self.server)
         self.chan = self.transport.accept(10)
-        if self.chan is None:
-            return
 
-        self.server.pty_event.wait()
-
-        while True:
-            self.initialized = False
-            self.watching_id = None
-
-            streamer = self.select_stream()
-            if streamer is None:
-                break
-            self.watching_id = streamer["id"]
-
-            print(
-                "new viewer watching %s (%s)" % (
-                    streamer["name"], streamer["id"]
-                )
-            )
-            self.chan.send(
-                "\033[1;%d;1;%dr\033[m\033[H\033[2J" % (
-                    streamer["rows"], streamer["cols"]
-                )
-            )
-            self.publisher.notify("new_viewer", self.watching_id)
+        if self.chan is not None:
+            self.server.pty_event.wait()
 
             while True:
-                c = self.chan.recv(1)
-                if c == b'q':
-                    print(
-                        "viewer stopped watching %s (%s)" % (
-                            streamer["name"], streamer["id"]
-                        )
-                    )
-                    self.publisher.notify(
-                        "viewer_disconnect", self.watching_id
-                    )
-                    self.chan.send(
-                        ("\033[1;%d;1;%dr"
-                        + "\033[m"
-                        + "\033[?9l\033[?1000l"
-                        + "\033[H\033[2J") % (
-                            self.server.rows, self.server.cols
-                        )
-                    )
-                    break
+                self.initialized = False
+                self.watching_id = None
 
-        self.chan.close()
+                streamer = self.select_stream()
+                if streamer is None:
+                    break
+                self.watching_id = streamer["id"]
+
+                print(
+                    "new viewer watching %s (%s)" % (
+                        streamer["name"], streamer["id"]
+                    )
+                )
+                self.chan.send(
+                    "\033[1;%d;1;%dr\033[m\033[H\033[2J" % (
+                        streamer["rows"], streamer["cols"]
+                    )
+                )
+                self.publisher.notify("new_viewer", self.watching_id)
+
+                while True:
+                    c = self.chan.recv(1)
+                    if c == b'q':
+                        print(
+                            "viewer stopped watching %s (%s)" % (
+                                streamer["name"], streamer["id"]
+                            )
+                        )
+                        self.publisher.notify(
+                            "viewer_disconnect", self.watching_id
+                        )
+                        self.chan.send(
+                            ("\033[1;%d;1;%dr"
+                            + "\033[m"
+                            + "\033[?9l\033[?1000l"
+                            + "\033[H\033[2J") % (
+                                self.server.rows, self.server.cols
+                            )
+                        )
+                        break
+
+        if self.chan is not None:
+            self.chan.close()
+        self.transport.close()
 
     def select_stream(self):
         key_code = ord('a')
