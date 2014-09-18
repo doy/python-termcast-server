@@ -145,7 +145,12 @@ class Connection(object):
 
         self.handler.process(buf)
         while True:
-            buf = self.client.recv(1024)
+            buf = b''
+            try:
+                buf = self.client.recv(1024)
+            except Exception as e:
+                print('*** recv failed: ' + str(e))
+
             if len(buf) > 0:
                 self.publisher.notify(
                     "new_data", self.connection_id, self.handler.buf, buf
