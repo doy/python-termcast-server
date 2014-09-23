@@ -7,6 +7,7 @@ import uuid
 from . import pubsub
 from . import ssh
 from . import termcast
+from . import web
 
 class Server(object):
     def __init__(self, keyfile):
@@ -16,12 +17,16 @@ class Server(object):
     def listen(self):
         ssh_sock = self._open_socket(2200)
         termcast_sock = self._open_socket(2201)
+        web_sock = self._open_socket(2202)
 
         threading.Thread(
             target=lambda: self.wait_for_ssh_connection(ssh_sock)
         ).start()
         threading.Thread(
             target=lambda: self.wait_for_termcast_connection(termcast_sock)
+        ).start()
+        threading.Thread(
+            target=lambda: self.wait_for_web_connection(web_sock)
         ).start()
 
     def wait_for_ssh_connection(self, sock):
@@ -35,6 +40,11 @@ class Server(object):
             sock,
             lambda client: self.handle_termcast_connection(client)
         )
+
+    def wait_for_web_connection(self, sock):
+        sock.setblocking(0)
+        sock.listen(100)
+        web.start_server(sock)
 
     def handle_ssh_connection(self, client):
         self._handle_connection(

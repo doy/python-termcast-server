@@ -11,7 +11,11 @@ setup(
     install_requires=[
         "vt100",
         "paramiko",
+        "tornado",
     ],
+    package_data={
+        '': ["*.html"],
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Console",

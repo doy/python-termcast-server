@@ -6,6 +6,7 @@ goal of adding features like a web viewer and better authentication options.
 # Dependencies
 
 * [paramiko](https://pypi.python.org/pypi/paramiko/)
+* [tornado](https://pypi.python.org/pypi/tornado)
 * [vt100](https://pypi.python.org/pypi/vt100)
 
 # Client
