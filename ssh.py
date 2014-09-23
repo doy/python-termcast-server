@@ -111,9 +111,9 @@ class Connection(object):
             return
 
         if not self.initialized:
-            print("sending %d bytes", len(prev_buf))
+            print("sending %d bytes" % len(prev_buf))
             sent = self.chan.send(prev_buf)
-            print("successfully sent %d bytes", sent)
+            print("successfully sent %d bytes" % sent)
             self.initialized = True
 
         self.chan.send(data)
