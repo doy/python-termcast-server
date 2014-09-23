@@ -7,6 +7,17 @@ import vt100
 auth_re = re.compile(b'^hello ([^ ]+) ([^ ]+)$')
 extra_data_re = re.compile(b'\033\]499;([^\007]*)\007')
 
+clear_patterns = [
+    b"\033[H\033[J",
+    b"\033[H\033[2J",
+    b"\033[2J\033[H",
+    # this one is from tmux - can't possibly imagine why it would choose to do
+    # things this way, but i'm sure there's some kind of reason
+    # it's not perfect (it's not always followed by a \e[H, sometimes it just
+    # moves the cursor to wherever else directly), but it helps a bit
+    lambda handler: b"\033[H\033[K\r\n\033[K" + b"".join([b"\033[1B\033[K" for i in range(handler.rows - 2)]) + b"\033[H",
+]
+
 class Handler(object):
     def __init__(self, rows, cols):
         self.created_at = time.time()
@@ -41,13 +52,13 @@ class Handler(object):
             self.cols = extra_data["geometry"][0]
             self.vt.set_window_size(self.rows, self.cols)
 
-        clear = self.buf.rfind(b"\033[H\033[J")
-        if clear != -1:
-            self.buf = self.buf[clear + 6:]
-
-        clear = self.buf.rfind(b"\033[2J\033[H")
-        if clear != -1:
-            self.buf = self.buf[clear + 7:]
+        for pattern in clear_patterns:
+            if type(pattern) == type(lambda x: x):
+                pattern = pattern(self)
+            clear = self.buf.rfind(pattern)
+            if clear != -1:
+                print("found a clear")
+                self.buf = self.buf[clear + len(pattern):]
 
         self.idle_since = time.time()
 
