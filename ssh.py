@@ -48,7 +48,7 @@ class Connection(object):
                         streamer["name"], streamer["id"]
                     )
                 )
-                self.chan.send(
+                self._send_all(
                     "\033[1;%d;1;%dr\033[m\033[H\033[2J" % (
                         streamer["rows"], streamer["cols"]
                     )
@@ -98,10 +98,10 @@ class Connection(object):
 
         c = self.chan.recv(1).decode('utf-8', 'ignore')
         if c in keymap:
-            self.chan.send("\033[2J\033[H")
+            self._send_all("\033[2J\033[H")
             return keymap[c]
         elif c == 'q':
-            self.chan.send("\r\n")
+            self._send_all("\r\n")
             return None
         else:
             return self.select_stream()
@@ -111,12 +111,10 @@ class Connection(object):
             return
 
         if not self.initialized:
-            print("sending %d bytes" % len(prev_buf))
-            sent = self.chan.send(prev_buf)
-            print("successfully sent %d bytes" % sent)
+            self._send_all(prev_buf)
             self.initialized = True
 
-        self.chan.send(data)
+        self._send_all(data)
 
     def msg_streamer_disconnect(self, connection_id):
         if self.watching_id != connection_id:
@@ -124,9 +122,14 @@ class Connection(object):
 
         self.wpipe.send("q")
 
+    def _send_all(self, data):
+        total_sent = 0
+        while total_sent < len(data):
+            total_sent += self.chan.send(data[total_sent:])
+
     def _display_streamer_screen(self, streamers):
-        self.chan.send("\033[H\033[2JWelcome to Termcast!")
-        self.chan.send(
+        self._send_all("\033[H\033[2JWelcome to Termcast!")
+        self._send_all(
             "\033[3H   %-20s  %-15s  %-10s  %-12s  %-15s" % (
                 "User", "Terminal size", "Viewers", "Idle time", "Total time"
             )
@@ -146,20 +149,20 @@ class Connection(object):
             if cols > self.server.cols or rows > self.server.rows:
                 size_pre = "\033[31m"
                 size_post = "\033[m"
-            self.chan.send(
+            self._send_all(
                 "\033[%dH%s) %-20s  %s%-15s%s  %-10s  %-12s  %-15s" % (
                     row, key, name, size_pre, size, size_post,
                     viewers, idle, total
                 )
             )
             row += 1
-        self.chan.send("\033[%dHChoose a stream: " % (row + 1))
+        self._send_all("\033[%dHChoose a stream: " % (row + 1))
 
     def _cleanup_watcher(self):
         self.publisher.notify(
             "viewer_disconnect", self.watching_id
         )
-        self.chan.send(
+        self._send_all(
             ("\033[1;%d;1;%dr"
             + "\033[m"
             + "\033[?9l\033[?1000l"
