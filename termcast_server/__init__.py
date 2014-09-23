@@ -76,3 +76,7 @@ class Server(object):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(('', port))
         return sock
+
+def main():
+    server = Server(sys.argv[1])
+    server.listen()
