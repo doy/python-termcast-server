@@ -4,9 +4,9 @@ import sys
 import threading
 import uuid
 
-import pubsub
-import ssh
-import termcast
+from . import pubsub
+from . import ssh
+from . import termcast
 
 class Server(object):
     def __init__(self, keyfile):
@@ -76,7 +76,3 @@ class Server(object):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(('', port))
         return sock
-
-if __name__ == '__main__':
-    server = Server(sys.argv[1])
-    server.listen()
