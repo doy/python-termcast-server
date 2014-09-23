@@ -1,4 +1,6 @@
+import multiprocessing
 import paramiko
+import select
 import threading
 import time
 
@@ -21,6 +23,8 @@ class Connection(object):
         self.publisher = publisher
         self.initialized = False
         self.watching_id = None
+
+        self.rpipe, self.wpipe = multiprocessing.Pipe(False)
 
     def run(self):
         self.server = Server()
@@ -52,24 +56,24 @@ class Connection(object):
                 self.publisher.notify("new_viewer", self.watching_id)
 
                 while True:
-                    c = self.chan.recv(1)
-                    if c == b'q':
-                        print(
-                            "viewer stopped watching %s (%s)" % (
-                                streamer["name"], streamer["id"]
+                    rout, wout, eout = select.select(
+                        [self.chan, self.rpipe],
+                        [],
+                        []
+                    )
+                    if self.chan in rout:
+                        c = self.chan.recv(1)
+                        if c == b'q':
+                            print(
+                                "viewer stopped watching %s (%s)" % (
+                                    streamer["name"], streamer["id"]
+                                )
                             )
-                        )
-                        self.publisher.notify(
-                            "viewer_disconnect", self.watching_id
-                        )
-                        self.chan.send(
-                            ("\033[1;%d;1;%dr"
-                            + "\033[m"
-                            + "\033[?9l\033[?1000l"
-                            + "\033[H\033[2J") % (
-                                self.server.rows, self.server.cols
-                            )
-                        )
+                            self._cleanup_watcher()
+                            break
+
+                    if self.rpipe in rout:
+                        self._cleanup_watcher()
                         break
 
         if self.chan is not None:
@@ -112,6 +116,12 @@ class Connection(object):
 
         self.chan.send(data)
 
+    def msg_streamer_disconnect(self, connection_id):
+        if self.watching_id != connection_id:
+            return
+
+        self.wpipe.send("q")
+
     def _display_streamer_screen(self, streamers):
         self.chan.send("\033[H\033[2JWelcome to Termcast!")
         self.chan.send(
@@ -142,6 +152,19 @@ class Connection(object):
             )
             row += 1
         self.chan.send("\033[%dHChoose a stream: " % (row + 1))
+
+    def _cleanup_watcher(self):
+        self.publisher.notify(
+            "viewer_disconnect", self.watching_id
+        )
+        self.chan.send(
+            ("\033[1;%d;1;%dr"
+            + "\033[m"
+            + "\033[?9l\033[?1000l"
+            + "\033[H\033[2J") % (
+                self.server.rows, self.server.cols
+            )
+        )
 
 class Server(paramiko.ServerInterface):
     def __init__(self):

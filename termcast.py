@@ -157,6 +157,7 @@ class Connection(object):
                 )
                 self.handler.process(buf)
             else:
+                self.publisher.notify("streamer_disconnect", self.connection_id)
                 return
 
     def msg_new_viewer(self, connection_id):
