@@ -8,6 +8,10 @@ setup(
     author="Jesse Luehrs",
     author_email="doy@tozt.net",
     license="MIT",
+    install_requires=[
+        "vt100",
+        "paramiko",
+    ],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Console",
