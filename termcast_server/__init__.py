@@ -44,7 +44,7 @@ class Server(object):
     def wait_for_web_connection(self, sock):
         sock.setblocking(0)
         sock.listen(100)
-        web.start_server(sock)
+        web.start_server(sock, self.publisher)
 
     def handle_ssh_connection(self, client):
         self._handle_connection(

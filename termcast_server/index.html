@@ -1,21 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+.menu {
+    display: none;
+}
+
+.term {
+    display: none;
+}
+    </style>
     <script>
 var url = location.origin.replace(/^http/, 'ws') + "/-/";
-var socket = new WebSocket(url);
+socket = new WebSocket(url);
 socket.onopen = function (e) {
-    // XXX
+    socket.send(JSON.stringify({"type": "request_streamer_list"}));
 };
 socket.onmessage = function (e) {
-    // XXX
-};
-socket.onclose = function (e) {
-    // XXX
+    console.log(e.data);
+    var data = JSON.parse(e.data);
+    var type = data.type;
+
+    if (type == "streamer_list") {
+        document.querySelector('.term').style.setProperty('display', 'none');
+        var menudiv = document.querySelector('.menu');
+        var menu = '<ul>';
+        data.streamers.forEach(function (streamer) {
+            menu += '<li><a href="#" onclick=' + "'socket.send(JSON.stringify({\"type\": \"start_watching\", \"who\": \"" + streamer.id + "\"}))'" + '>' + streamer.name + '</a></li>';
+        });
+        menu += '</ul>';
+        menudiv.innerHTML = menu;
+        menudiv.style.setProperty('display', 'block');
+    }
+    else if (type == "update_screen") {
+        document.querySelector('.menu').style.setProperty('display', 'none');
+        var termdiv = document.querySelector('.term');
+        // XXX
+        termdiv.innerHTML = "<h1>It's a terminal</h1>";
+        termdiv.style.setProperty('display', 'block');
+    }
+    else if (type == "streamer_disconnect") {
+        socket.send(JSON.stringify({"type": "request_streamer_list"}));
+    }
 };
     </script>
 </head>
 <body>
-    <h1>Hello World</h1>
+    <div class="menu"></div>
+    <div class="term"></div>
 </body>
 </html>
