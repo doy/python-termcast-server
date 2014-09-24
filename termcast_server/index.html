@@ -8,6 +8,11 @@
 
 .term {
     display: none;
+    font-family: monospace;
+}
+
+.term .td {
+    width: 1em;
 }
     </style>
     <script>
@@ -35,8 +40,16 @@ socket.onmessage = function (e) {
     else if (type == "update_screen") {
         document.querySelector('.menu').style.setProperty('display', 'none');
         var termdiv = document.querySelector('.term');
-        // XXX
-        termdiv.innerHTML = "<h1>It's a terminal</h1>";
+        term = '<table class="screen">';
+        data.screen.forEach(function (row) {
+            term += '<tr>';
+            row.forEach(function (cell) {
+                term += '<td>' + cell.contents + '</td>';
+            });
+            term += '</td>';
+        });
+        term += '</table>';
+        termdiv.innerHTML = term;
         termdiv.style.setProperty('display', 'block');
     }
     else if (type == "streamer_disconnect") {

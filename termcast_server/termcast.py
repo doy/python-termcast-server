@@ -63,13 +63,18 @@ class Handler(object):
         self.idle_since = time.time()
 
     def get_term(self):
-        term = ''
+        term = []
         for i in range(0, self.rows):
+            term.append([])
             for j in range(0, self.cols):
-                term += self.vt.cell(i, j).contents()
-            term += "\n"
+                contents = self.vt.cell(i, j).contents()
+                if len(contents) == 0:
+                    contents = " "
+                term[i].append({
+                    "contents": contents,
+                })
 
-        return term[:-1]
+        return term
 
     def total_time(self):
         return self._human_readable_duration(time.time() - self.created_at)
@@ -163,10 +168,14 @@ class Connection(object):
                 print('*** recv failed: ' + str(e))
 
             if len(buf) > 0:
-                self.publisher.notify(
-                    "new_data", self.connection_id, self.handler.buf, buf
-                )
                 self.handler.process(buf)
+                self.publisher.notify(
+                    "new_data",
+                    self.connection_id,
+                    self.handler.buf,
+                    buf,
+                    self.handler.get_term()
+                )
             else:
                 self.publisher.notify("streamer_disconnect", self.connection_id)
                 return
@@ -176,7 +185,11 @@ class Connection(object):
             return
         self.viewers += 1
         self.publisher.notify(
-            "new_data", self.connection_id, self.handler.buf, b''
+            "new_data",
+            self.connection_id,
+            self.handler.buf,
+            b'',
+            self.handler.get_term()
         )
         self.client.send(b"msg watcher connected\n")
 

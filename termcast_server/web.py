@@ -34,10 +34,15 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_finish(self):
         self.publisher.unsubscribe(self)
 
-    def msg_new_data(self, connection_id, prev_buf, data):
+    def msg_new_data(self, connection_id, prev_buf, data, screen):
         if self.watching_id != connection_id:
             return
-        self.write_message(json.dumps({"type": "update_screen"}))
+
+        reply = {
+            "type": "update_screen",
+            "screen": screen,
+        }
+        self.write_message(json.dumps(reply))
 
 def make_app(publisher):
     return tornado.web.Application([

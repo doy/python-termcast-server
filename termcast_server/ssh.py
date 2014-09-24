@@ -106,7 +106,7 @@ class Connection(object):
         else:
             return self.select_stream()
 
-    def msg_new_data(self, connection_id, prev_buf, data):
+    def msg_new_data(self, connection_id, prev_buf, data, screen):
         if self.watching_id != connection_id:
             return
 
