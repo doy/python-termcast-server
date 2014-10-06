@@ -68,16 +68,35 @@ class Handler(object):
             term.append([])
             for j in range(0, self.cols):
                 cell = self.vt.cell(i, j)
-                contents = cell.contents()
-                if len(contents) == 0:
-                    contents = " "
                 term[i].append({
-                    "contents": contents,
+                    "contents": cell.contents(),
                     "fgcolor": cell.fgcolor().color(),
                     "bgcolor": cell.bgcolor().color(),
                 })
 
         return term
+
+    def get_term_updates(self, screen):
+        changes = []
+        for i in range(0, self.rows):
+            for j in range(0, self.cols):
+                cell = self.vt.cell(i, j)
+                prev_cell = screen[i][j]
+                contents = cell.contents()
+                fgcolor = cell.fgcolor().color()
+                bgcolor = cell.bgcolor().color()
+                if contents != prev_cell["contents"] or fgcolor != prev_cell["fgcolor"] or bgcolor != prev_cell["bgcolor"]:
+                    changes.append({
+                        "row": i,
+                        "col": j,
+                        "cell": {
+                            "contents": contents,
+                            "fgcolor": fgcolor,
+                            "bgcolor": bgcolor,
+                        },
+                    })
+
+        return changes
 
     def total_time(self):
         return self._human_readable_duration(time.time() - self.created_at)
@@ -171,13 +190,15 @@ class Connection(object):
                 print('*** recv failed: ' + str(e))
 
             if len(buf) > 0:
+                prev_screen = self.handler.get_term()
                 self.handler.process(buf)
                 self.publisher.notify(
                     "new_data",
                     self.connection_id,
                     self.handler.buf,
                     buf,
-                    self.handler.get_term()
+                    self.handler.get_term(),
+                    self.handler.get_term_updates(prev_screen)
                 )
             else:
                 self.publisher.notify("streamer_disconnect", self.connection_id)
@@ -192,7 +213,8 @@ class Connection(object):
             self.connection_id,
             self.handler.buf,
             b'',
-            self.handler.get_term()
+            self.handler.get_term(),
+            None
         )
         self.client.send(b"msg watcher connected\n")
 

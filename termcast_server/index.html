@@ -51,7 +51,7 @@ socket.onmessage = function (e) {
         menudiv.innerHTML = menu;
         menudiv.style.setProperty('display', 'block');
     }
-    else if (type == "update_screen") {
+    else if (type == "redraw_screen") {
         document.querySelector('.menu').style.setProperty('display', 'none');
         var termdiv = document.querySelector('.term');
         term = '<table class="screen">';
@@ -83,6 +83,30 @@ socket.onmessage = function (e) {
         term += '</table>';
         termdiv.innerHTML = term;
         termdiv.style.setProperty('display', 'block');
+    }
+    else if (type == "update_screen") {
+        var termtable = document.querySelector('.term tbody');
+        data.updates.forEach(function (update) {
+            var tr = termtable.children[update.row];
+            var td = tr.children[update.col];
+            var contents = update.cell.contents;
+            if (contents == " ") {
+                contents = "&nbsp;";
+            }
+            td.innerHTML = contents;
+            if (update.cell.fgcolor) {
+                td.style.setProperty('color', colors[update.cell.fgcolor]);
+            }
+            else {
+                td.style.removeProperty('color');
+            }
+            if (update.cell.bgcolor) {
+                td.style.setProperty('background-color', colors[update.cell.bgcolor]);
+            }
+            else {
+                td.style.removeProperty('background-color');
+            }
+        })
     }
     else if (type == "streamer_disconnect") {
         socket.send(JSON.stringify({"type": "request_streamer_list"}));
