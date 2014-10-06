@@ -67,11 +67,14 @@ class Handler(object):
         for i in range(0, self.rows):
             term.append([])
             for j in range(0, self.cols):
-                contents = self.vt.cell(i, j).contents()
+                cell = self.vt.cell(i, j)
+                contents = cell.contents()
                 if len(contents) == 0:
                     contents = " "
                 term[i].append({
                     "contents": contents,
+                    "fgcolor": cell.fgcolor().color(),
+                    "bgcolor": cell.bgcolor().color(),
                 })
 
         return term

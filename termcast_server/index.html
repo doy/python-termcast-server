@@ -16,6 +16,16 @@
 }
     </style>
     <script>
+var colors = [
+    "#000000",
+    "#ff0000",
+    "#00ff00",
+    "#ffff00",
+    "#0000ff",
+    "#ff00ff",
+    "#00ffff",
+    "#ffffff",
+];
 var url = location.origin.replace(/^http/, 'ws') + "/-/";
 socket = new WebSocket(url);
 socket.onopen = function (e) {
@@ -44,7 +54,18 @@ socket.onmessage = function (e) {
         data.screen.forEach(function (row) {
             term += '<tr>';
             row.forEach(function (cell) {
-                term += '<td>' + cell.contents + '</td>';
+                term += '<td';
+                if (cell.fgcolor || cell.bgcolor) {
+                    term += ' style="';
+                    if (cell.fgcolor) {
+                        term += 'color: ' + colors[cell.fgcolor] + ';';
+                    }
+                    if (cell.bgcolor) {
+                        term += 'background-color: ' + colors[cell.bgcolor] + ';';
+                    }
+                    term += '"';
+                }
+                term += '>' + cell.contents + '</td>';
             });
             term += '</td>';
         });
