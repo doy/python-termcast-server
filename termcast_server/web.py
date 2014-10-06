@@ -42,7 +42,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             "type": "update_screen",
             "screen": screen,
         }
-        self.write_message(json.dumps(reply))
+        try:
+            self.write_message(json.dumps(reply))
+        except:
+            self.publisher.unsubscribe(self)
 
 def make_app(publisher):
     return tornado.web.Application([
