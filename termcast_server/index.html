@@ -11,8 +11,12 @@
     font-family: monospace;
 }
 
-.term .td {
-    width: 1em;
+.term table {
+    border-collapse: collapse;
+}
+
+.term td {
+    padding: 0px;
 }
     </style>
     <script>
@@ -65,7 +69,14 @@ socket.onmessage = function (e) {
                     }
                     term += '"';
                 }
-                term += '>' + cell.contents + '</td>';
+                term += '>';
+                if (cell.contents == " ") {
+                    term += "&nbsp;";
+                }
+                else {
+                    term += cell.contents;
+                }
+                term += '</td>';
             });
             term += '</td>';
         });
