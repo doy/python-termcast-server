@@ -199,8 +199,8 @@ class Server(paramiko.ServerInterface):
     def check_channel_shell_request(self, channel):
         return True
 
-    def check_auth_password(self, username, password):
+    def check_auth_none(self, username):
         return paramiko.AUTH_SUCCESSFUL
 
     def get_allowed_auths(self, username):
-        return "password"
+        return "none"
