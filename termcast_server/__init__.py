@@ -80,6 +80,7 @@ class Server(object):
         self.publisher.subscribe(connection)
         connection.run()
         self.publisher.unsubscribe(connection)
+        client.close()
 
     def _open_socket(self, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
