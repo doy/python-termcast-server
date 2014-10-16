@@ -60,7 +60,8 @@ def make_app(publisher):
         ('/-/', WebSocketHandler, dict(publisher=publisher)),
     ])
 
-def start_server(sock, publisher):
+def start_server(sock, publisher, pemfile):
+    # XXX set up ssl with pemfile
     server = tornado.httpserver.HTTPServer(make_app(publisher))
     server.add_socket(sock)
     tornado.ioloop.IOLoop.instance().start()

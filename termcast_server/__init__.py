@@ -10,9 +10,10 @@ from . import termcast
 from . import web
 
 class Server(object):
-    def __init__(self, keyfile):
+    def __init__(self, keyfile, pemfile):
         self.publisher = pubsub.Publisher()
         self.keyfile = keyfile
+        self.pemfile = pemfile
 
     def listen(self):
         ssh_sock = self._open_socket(2200)
@@ -44,7 +45,7 @@ class Server(object):
     def wait_for_web_connection(self, sock):
         sock.setblocking(0)
         sock.listen(100)
-        web.start_server(sock, self.publisher)
+        web.start_server(sock, self.publisher, self.pemfile)
 
     def handle_ssh_connection(self, client):
         self._handle_connection(
@@ -58,7 +59,7 @@ class Server(object):
         self._handle_connection(
             client,
             lambda client, connection_id: termcast.Connection(
-                client, connection_id, self.publisher
+                client, connection_id, self.publisher, self.pemfile
             )
         )
 
@@ -87,5 +88,5 @@ class Server(object):
         return sock
 
 def main():
-    server = Server(sys.argv[1])
+    server = Server(sys.argv[1], sys.argv[2])
     server.listen()
