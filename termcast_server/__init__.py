@@ -69,7 +69,6 @@ class Server(object):
                 client, addr = sock.accept()
             except Exception as e:
                 print('*** Listen/accept failed: ' + str(e))
-                traceback.print_exc()
                 continue
 
             threading.Thread(target=cb, args=(client,)).start()
