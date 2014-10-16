@@ -229,7 +229,10 @@ class Connection(object):
     def _readline(self):
         buf = b''
         while len(buf) < 1024 and b"\n" not in buf:
-            buf += self.client.recv(1)
+            byte = self.client.recv(1)
+            if len(byte) == 0:
+                raise Exception("Connection closed unexpectedly")
+            buf += byte
 
         pos = buf.find(b"\n")
         if pos == -1:
