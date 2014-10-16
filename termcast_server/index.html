@@ -13,6 +13,7 @@
 
 .term table {
     border-collapse: collapse;
+    background-color: black;
 }
 
 .term td {
@@ -70,7 +71,7 @@ socket.onmessage = function (e) {
                     term += '"';
                 }
                 term += '>';
-                if (cell.contents == " ") {
+                if (cell.contents == " " || cell.contents == "") {
                     term += "&nbsp;";
                 }
                 else {
@@ -98,7 +99,7 @@ socket.onmessage = function (e) {
                 td.style.setProperty('color', colors[update.cell.fgcolor]);
             }
             else {
-                td.style.removeProperty('color');
+                td.style.setProperty('color', "#FFFFFF");
             }
             if (update.cell.bgcolor) {
                 td.style.setProperty('background-color', colors[update.cell.bgcolor]);
