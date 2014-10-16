@@ -78,7 +78,10 @@ class Server(object):
         connection_id = uuid.uuid4().hex
         connection = cb(client, connection_id)
         self.publisher.subscribe(connection)
-        connection.run()
+        try:
+            connection.run()
+        except Exception as e:
+            print('Running connection failed: ' + str(e))
         self.publisher.unsubscribe(connection)
         client.close()
 
