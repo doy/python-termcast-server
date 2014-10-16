@@ -91,7 +91,7 @@ socket.onmessage = function (e) {
             var tr = termtable.children[update.row];
             var td = tr.children[update.col];
             var contents = update.cell.contents;
-            if (contents == " ") {
+            if (contents == " " || contents == "") {
                 contents = "&nbsp;";
             }
             td.innerHTML = contents;
