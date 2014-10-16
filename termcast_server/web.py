@@ -33,6 +33,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
     def on_finish(self):
         self.publisher.unsubscribe(self)
+        self.publisher.notify("viewer_disconnect", self.watching_id)
 
     def msg_new_data(self, connection_id, prev_buf, data, screen, updates):
         if self.watching_id != connection_id:
