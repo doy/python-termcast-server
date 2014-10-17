@@ -308,12 +308,17 @@ socket.onmessage = function (e) {
     else if (type == "redraw_screen") {
         document.querySelector('.menu').style.setProperty('display', 'none');
         var termdiv = document.querySelector('.term');
+        var hideNext = false;
         term = '<table class="screen">';
         data.screen.forEach(function (row) {
             term += '<tr>';
             row.forEach(function (cell) {
                 term += '<td';
-                if (cell.f != null || cell.b != null || cell.i || cell.u || cell.n) {
+                if (cell.w) {
+                    term += ' colspan="2"';
+                    hideNext = true;
+                }
+                if (cell.f != null || cell.b != null || cell.i || cell.u || cell.n || hideNext) {
                     var fgcolor = cell.f;
                     var bgcolor = cell.b;
                     var inverse = cell.n;
@@ -340,6 +345,10 @@ socket.onmessage = function (e) {
                     }
                     if (cell.u) {
                         term += 'text-decoration: underline;';
+                    }
+                    if (hideNext) {
+                        term += 'display: none;';
+                        hideNext = false;
                     }
                     term += '"';
                 }
@@ -417,6 +426,18 @@ socket.onmessage = function (e) {
                 }
                 else {
                     td.style.removeProperty('text-decoration');
+                }
+            }
+            if (update.cell.hasOwnProperty('w')) {
+                if (update.cell.w) {
+                    console.log("setting colspan to 2");
+                    tr.children[update.col + 1].style.setProperty('display', 'none');
+                    td.colSpan = 2;
+                }
+                else {
+                    console.log("setting colspan to 1");
+                    tr.children[update.col + 1].style.setProperty('display', 'block');
+                    td.colSpan = 1;
                 }
             }
         })

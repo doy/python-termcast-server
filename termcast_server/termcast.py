@@ -77,6 +77,7 @@ class Handler(object):
                     "i": cell.italic(),
                     "u": cell.underline(),
                     "n": cell.inverse(),
+                    "w": cell.is_wide(),
                 })
 
         return term
@@ -96,6 +97,7 @@ class Handler(object):
                         "i": cell.italic(),
                         "u": cell.underline(),
                         "n": cell.inverse(),
+                        "w": cell.is_wide(),
                     }
                 )
 
