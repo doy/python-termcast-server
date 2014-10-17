@@ -73,6 +73,10 @@ class Handler(object):
                     "contents": cell.contents(),
                     "fgcolor": cell.fgcolor().color(),
                     "bgcolor": cell.bgcolor().color(),
+                    "bold": cell.bold(),
+                    "italic": cell.italic(),
+                    "underline": cell.underline(),
+                    "inverse": cell.inverse(),
                 })
 
         return term
@@ -83,18 +87,25 @@ class Handler(object):
             for j in range(0, self.cols):
                 cell = self.vt.cell(i, j)
                 prev_cell = screen[i][j]
-                contents = cell.contents()
-                fgcolor = cell.fgcolor().color()
-                bgcolor = cell.bgcolor().color()
-                if contents != prev_cell["contents"] or fgcolor != prev_cell["fgcolor"] or bgcolor != prev_cell["bgcolor"]:
+                cur_cell = {
+                    "contents": cell.contents(),
+                    "fgcolor": cell.fgcolor().color(),
+                    "bgcolor": cell.bgcolor().color(),
+                    "bold": cell.bold(),
+                    "italic": cell.italic(),
+                    "underline": cell.underline(),
+                    "inverse": cell.inverse(),
+                }
+                cell_changes = {}
+                for key in cur_cell:
+                    if cur_cell[key] != prev_cell[key]:
+                        cell_changes[key] = cur_cell[key]
+
+                if len(cell_changes) > 0:
                     changes.append({
                         "row": i,
                         "col": j,
-                        "cell": {
-                            "contents": contents,
-                            "fgcolor": fgcolor,
-                            "bgcolor": bgcolor,
-                        },
+                        "cell": cell_changes,
                     })
 
         return changes

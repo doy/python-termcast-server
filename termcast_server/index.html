@@ -309,13 +309,22 @@ socket.onmessage = function (e) {
             term += '<tr>';
             row.forEach(function (cell) {
                 term += '<td';
-                if (cell.fgcolor || cell.bgcolor) {
+                if (cell.fgcolor != null || cell.bgcolor != null || cell.bold || cell.italic || cell.underline) {
                     term += ' style="';
                     if (cell.fgcolor != null) {
                         term += 'color: ' + colors[cell.fgcolor] + ';';
                     }
                     if (cell.bgcolor != null) {
                         term += 'background-color: ' + colors[cell.bgcolor] + ';';
+                    }
+                    if (cell.bold) {
+                        term += 'font-weight: bold;';
+                    }
+                    if (cell.italic) {
+                        term += 'font-style: italic;';
+                    }
+                    if (cell.underline) {
+                        term += 'text-decoration: underline;';
                     }
                     term += '"';
                 }
@@ -339,19 +348,52 @@ socket.onmessage = function (e) {
         data.updates.forEach(function (update) {
             var tr = termtable.children[update.row];
             var td = tr.children[update.col];
-            var contents = update.cell.contents;
-            if (contents == " " || contents == "") {
-                contents = "&nbsp;";
+            if (update.cell.hasOwnProperty('contents')) {
+                var contents = update.cell.contents;
+                if (contents == " " || contents == "") {
+                    contents = "&nbsp;";
+                }
+                td.innerHTML = contents;
             }
-            td.innerHTML = contents;
-            if (update.cell.fgcolor != null) {
-                td.style.setProperty('color', colors[update.cell.fgcolor]);
+            if (update.cell.hasOwnProperty('fgcolor')) {
+                if (update.cell.fgcolor != null) {
+                    td.style.setProperty('color', colors[update.cell.fgcolor]);
+                }
+                else {
+                    td.style.removeProperty('color');
+                }
             }
-            if (update.cell.bgcolor != null) {
-                td.style.setProperty('background-color', colors[update.cell.bgcolor]);
+            if (update.cell.hasOwnProperty('bgcolor')) {
+                if (update.cell.bgcolor != null) {
+                    td.style.setProperty('background-color', colors[update.cell.bgcolor]);
+                }
+                else {
+                    td.style.removeProperty('background-color');
+                }
             }
-            else {
-                td.style.removeProperty('background-color');
+            if (update.cell.hasOwnProperty('bold')) {
+                if (update.cell.bold) {
+                    td.style.setProperty('font-weight', 'bold');
+                }
+                else {
+                    td.style.removeProperty('font-weight');
+                }
+            }
+            if (update.cell.hasOwnProperty('italic')) {
+                if (update.cell.italic) {
+                    td.style.setProperty('font-style', 'italic');
+                }
+                else {
+                    td.style.removeProperty('font-style');
+                }
+            }
+            if (update.cell.hasOwnProperty('underline')) {
+                if (update.cell.underline) {
+                    td.style.setProperty('text-decoration', 'underline');
+                }
+                else {
+                    td.style.removeProperty('text-decoration');
+                }
             }
         })
     }
