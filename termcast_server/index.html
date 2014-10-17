@@ -311,10 +311,10 @@ socket.onmessage = function (e) {
                 term += '<td';
                 if (cell.fgcolor || cell.bgcolor) {
                     term += ' style="';
-                    if (cell.fgcolor) {
+                    if (cell.fgcolor != null) {
                         term += 'color: ' + colors[cell.fgcolor] + ';';
                     }
-                    if (cell.bgcolor) {
+                    if (cell.bgcolor != null) {
                         term += 'background-color: ' + colors[cell.bgcolor] + ';';
                     }
                     term += '"';
@@ -344,10 +344,10 @@ socket.onmessage = function (e) {
                 contents = "&nbsp;";
             }
             td.innerHTML = contents;
-            if (update.cell.fgcolor) {
+            if (update.cell.fgcolor != null) {
                 td.style.setProperty('color', colors[update.cell.fgcolor]);
             }
-            if (update.cell.bgcolor) {
+            if (update.cell.bgcolor != null) {
                 td.style.setProperty('background-color', colors[update.cell.bgcolor]);
             }
             else {
