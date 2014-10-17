@@ -430,12 +430,10 @@ socket.onmessage = function (e) {
             }
             if (update.cell.hasOwnProperty('w')) {
                 if (update.cell.w) {
-                    console.log("setting colspan to 2");
                     tr.children[update.col + 1].style.setProperty('display', 'none');
                     td.colSpan = 2;
                 }
                 else {
-                    console.log("setting colspan to 1");
                     tr.children[update.col + 1].style.setProperty('display', 'block');
                     td.colSpan = 1;
                 }
