@@ -1,4 +1,10 @@
 Revision history for termcast_server
 
+0.1.1  2014-10-16
+    - Basic SSL support. This is undocumented and preliminary - it could change
+      at any point.
+    - Proof-of-concept web interface - not particularly useable yet, but it's a
+      start
+
 0.1.0  2014-09-23
     - Initial revision
