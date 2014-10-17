@@ -309,17 +309,27 @@ socket.onmessage = function (e) {
             term += '<tr>';
             row.forEach(function (cell) {
                 term += '<td';
-                if (cell.f != null || cell.b != null || cell.i || cell.u) {
+                if (cell.f != null || cell.b != null || cell.i || cell.u || cell.n) {
+                    var fgcolor = cell.f;
+                    var bgcolor = cell.b;
+                    var inverse = cell.n;
                     term += ' style="';
-                    if (cell.f != null) {
-                        var fgcolor = cell.f;
-                        if (cell.o && fgcolor < 8) {
-                            fgcolor += 8;
-                        }
-                        term += 'color: ' + colors[fgcolor] + ';';
+                    if (inverse && fgcolor == bgcolor) {
+                        term += 'color: black;';
+                        term += 'background-color: #d3d3d3;';
                     }
-                    if (cell.b != null) {
-                        term += 'background-color: ' + colors[cell.b] + ';';
+                    else {
+                        if (fgcolor != null) {
+                            var style = inverse ? 'background-color' : 'color';
+                            if (cell.o && fgcolor < 8) {
+                                fgcolor += 8;
+                            }
+                            term += style + ': ' + colors[fgcolor] + ';';
+                        }
+                        if (bgcolor != null) {
+                            var style = inverse ? 'color' : 'background-color';
+                            term += style + ': ' + colors[bgcolor] + ';';
+                        }
                     }
                     if (cell.i) {
                         term += 'font-style: italic;';
