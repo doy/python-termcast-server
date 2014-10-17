@@ -309,32 +309,32 @@ socket.onmessage = function (e) {
             term += '<tr>';
             row.forEach(function (cell) {
                 term += '<td';
-                if (cell.fgcolor != null || cell.bgcolor != null || cell.italic || cell.underline) {
+                if (cell.f != null || cell.b != null || cell.i || cell.u) {
                     term += ' style="';
-                    if (cell.fgcolor != null) {
-                        var fgcolor = cell.fgcolor;
-                        if (cell.bold && fgcolor < 8) {
+                    if (cell.f != null) {
+                        var fgcolor = cell.f;
+                        if (cell.o && fgcolor < 8) {
                             fgcolor += 8;
                         }
                         term += 'color: ' + colors[fgcolor] + ';';
                     }
-                    if (cell.bgcolor != null) {
-                        term += 'background-color: ' + colors[cell.bgcolor] + ';';
+                    if (cell.b != null) {
+                        term += 'background-color: ' + colors[cell.b] + ';';
                     }
-                    if (cell.italic) {
+                    if (cell.i) {
                         term += 'font-style: italic;';
                     }
-                    if (cell.underline) {
+                    if (cell.u) {
                         term += 'text-decoration: underline;';
                     }
                     term += '"';
                 }
                 term += '>';
-                if (cell.contents == " " || cell.contents == "") {
+                if (cell.c == " " || cell.c == "") {
                     term += "&nbsp;";
                 }
                 else {
-                    term += cell.contents;
+                    term += cell.c;
                 }
                 term += '</td>';
             });
@@ -349,23 +349,23 @@ socket.onmessage = function (e) {
         data.updates.forEach(function (update) {
             var tr = termtable.children[update.row];
             var td = tr.children[update.col];
-            if (update.cell.hasOwnProperty('contents')) {
-                var contents = update.cell.contents;
+            if (update.cell.hasOwnProperty('c')) {
+                var contents = update.cell.c;
                 if (contents == " " || contents == "") {
                     contents = "&nbsp;";
                 }
                 td.innerHTML = contents;
             }
-            if (update.cell.hasOwnProperty('fgcolor')) {
-                var inverse = update.cell.inverse;
-                var fgcolor = update.cell.fgcolor;
-                var bgcolor = update.cell.bgcolor;
+            if (update.cell.hasOwnProperty('f')) {
+                var inverse = update.cell.n;
+                var fgcolor = update.cell.f;
+                var bgcolor = update.cell.b;
                 var style = inverse ? 'background-color' : 'color';
                 if (inverse && fgcolor == bgcolor) {
                     td.style.setProperty(style, '#d3d3d3');
                 }
                 else if (fgcolor != null) {
-                    if (update.cell.bold && fgcolor < 8) {
+                    if (update.cell.o && fgcolor < 8) {
                         fgcolor += 8;
                     }
                     td.style.setProperty(style, colors[fgcolor]);
@@ -374,10 +374,10 @@ socket.onmessage = function (e) {
                     td.style.removeProperty(style);
                 }
             }
-            if (update.cell.hasOwnProperty('bgcolor')) {
-                var inverse = update.cell.inverse;
-                var fgcolor = update.cell.fgcolor;
-                var bgcolor = update.cell.bgcolor;
+            if (update.cell.hasOwnProperty('b')) {
+                var inverse = update.cell.n;
+                var fgcolor = update.cell.f;
+                var bgcolor = update.cell.b;
                 var style = inverse ? 'color' : 'background-color';
                 if (inverse && bgcolor == fgcolor) {
                     td.style.setProperty(style, 'black');
@@ -389,16 +389,16 @@ socket.onmessage = function (e) {
                     td.style.removeProperty(style);
                 }
             }
-            if (update.cell.hasOwnProperty('italic')) {
-                if (update.cell.italic) {
+            if (update.cell.hasOwnProperty('i')) {
+                if (update.cell.i) {
                     td.style.setProperty('font-style', 'italic');
                 }
                 else {
                     td.style.removeProperty('font-style');
                 }
             }
-            if (update.cell.hasOwnProperty('underline')) {
-                if (update.cell.underline) {
+            if (update.cell.hasOwnProperty('u')) {
+                if (update.cell.u) {
                     td.style.setProperty('text-decoration', 'underline');
                 }
                 else {

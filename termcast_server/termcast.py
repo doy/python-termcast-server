@@ -70,13 +70,13 @@ class Handler(object):
             for j in range(0, self.cols):
                 cell = self.vt.cell(i, j)
                 term[i].append({
-                    "contents": cell.contents(),
-                    "fgcolor": cell.fgcolor().color(),
-                    "bgcolor": cell.bgcolor().color(),
-                    "bold": cell.bold(),
-                    "italic": cell.italic(),
-                    "underline": cell.underline(),
-                    "inverse": cell.inverse(),
+                    "c": cell.contents(),
+                    "f": cell.fgcolor().color(),
+                    "b": cell.bgcolor().color(),
+                    "o": cell.bold(),
+                    "i": cell.italic(),
+                    "u": cell.underline(),
+                    "n": cell.inverse(),
                 })
 
         return term
@@ -89,13 +89,13 @@ class Handler(object):
                 cell_changes = self._diff_cell(
                     screen[i][j],
                     {
-                        "contents": cell.contents(),
-                        "fgcolor": cell.fgcolor().color(),
-                        "bgcolor": cell.bgcolor().color(),
-                        "bold": cell.bold(),
-                        "italic": cell.italic(),
-                        "underline": cell.underline(),
-                        "inverse": cell.inverse(),
+                        "c": cell.contents(),
+                        "f": cell.fgcolor().color(),
+                        "b": cell.bgcolor().color(),
+                        "o": cell.bold(),
+                        "i": cell.italic(),
+                        "u": cell.underline(),
+                        "n": cell.inverse(),
                     }
                 )
 
@@ -114,21 +114,21 @@ class Handler(object):
             if cur_cell[key] != prev_cell[key]:
                 cell_changes[key] = cur_cell[key]
 
-        if "fgcolor" in cell_changes:
-            cell_changes["bgcolor"] = cur_cell["bgcolor"]
-            cell_changes["bold"] = cur_cell["bold"]
-            cell_changes["inverse"] = cur_cell["inverse"]
+        if "f" in cell_changes:
+            cell_changes["b"] = cur_cell["b"]
+            cell_changes["o"] = cur_cell["o"]
+            cell_changes["n"] = cur_cell["n"]
 
-        if "bgcolor" in cell_changes:
-            cell_changes["fgcolor"] = cur_cell["fgcolor"]
-            cell_changes["inverse"] = cur_cell["inverse"]
+        if "b" in cell_changes:
+            cell_changes["f"] = cur_cell["f"]
+            cell_changes["n"] = cur_cell["n"]
 
-        if "bold" in cell_changes:
-            cell_changes["fgcolor"] = cur_cell["fgcolor"]
+        if "o" in cell_changes:
+            cell_changes["f"] = cur_cell["f"]
 
-        if "inverse" in cell_changes:
-            cell_changes["fgcolor"] = cur_cell["fgcolor"]
-            cell_changes["bgcolor"] = cur_cell["bgcolor"]
+        if "n" in cell_changes:
+            cell_changes["f"] = cur_cell["f"]
+            cell_changes["b"] = cur_cell["b"]
 
         return cell_changes
 
