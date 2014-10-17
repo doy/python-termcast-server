@@ -309,16 +309,17 @@ socket.onmessage = function (e) {
             term += '<tr>';
             row.forEach(function (cell) {
                 term += '<td';
-                if (cell.fgcolor != null || cell.bgcolor != null || cell.bold || cell.italic || cell.underline) {
+                if (cell.fgcolor != null || cell.bgcolor != null || cell.italic || cell.underline) {
                     term += ' style="';
                     if (cell.fgcolor != null) {
-                        term += 'color: ' + colors[cell.fgcolor] + ';';
+                        var fgcolor = cell.fgcolor;
+                        if (cell.bold && fgcolor < 8) {
+                            fgcolor += 8;
+                        }
+                        term += 'color: ' + colors[fgcolor] + ';';
                     }
                     if (cell.bgcolor != null) {
                         term += 'background-color: ' + colors[cell.bgcolor] + ';';
-                    }
-                    if (cell.bold) {
-                        term += 'font-weight: bold;';
                     }
                     if (cell.italic) {
                         term += 'font-style: italic;';
@@ -357,7 +358,13 @@ socket.onmessage = function (e) {
             }
             if (update.cell.hasOwnProperty('fgcolor')) {
                 if (update.cell.fgcolor != null) {
-                    td.style.setProperty('color', colors[update.cell.fgcolor]);
+                    var fgcolor = update.cell.fgcolor;
+                    if (update.cell.hasOwnProperty('bold')) {
+                        if (update.cell.bold && fgcolor < 8) {
+                            fgcolor += 8;
+                        }
+                    }
+                    td.style.setProperty('color', colors[fgcolor]);
                 }
                 else {
                     td.style.removeProperty('color');
@@ -369,14 +376,6 @@ socket.onmessage = function (e) {
                 }
                 else {
                     td.style.removeProperty('background-color');
-                }
-            }
-            if (update.cell.hasOwnProperty('bold')) {
-                if (update.cell.bold) {
-                    td.style.setProperty('font-weight', 'bold');
-                }
-                else {
-                    td.style.removeProperty('font-weight');
                 }
             }
             if (update.cell.hasOwnProperty('italic')) {

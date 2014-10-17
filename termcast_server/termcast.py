@@ -114,6 +114,12 @@ class Handler(object):
             if cur_cell[key] != prev_cell[key]:
                 cell_changes[key] = cur_cell[key]
 
+        if "bold" in cell_changes:
+            cell_changes["fgcolor"] = cur_cell["fgcolor"]
+
+        if "fgcolor" in cell_changes:
+            cell_changes["bold"] = cur_cell["bold"]
+
         return cell_changes
 
     def total_time(self):
