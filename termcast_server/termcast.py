@@ -86,20 +86,18 @@ class Handler(object):
         for i in range(0, self.rows):
             for j in range(0, self.cols):
                 cell = self.vt.cell(i, j)
-                prev_cell = screen[i][j]
-                cur_cell = {
-                    "contents": cell.contents(),
-                    "fgcolor": cell.fgcolor().color(),
-                    "bgcolor": cell.bgcolor().color(),
-                    "bold": cell.bold(),
-                    "italic": cell.italic(),
-                    "underline": cell.underline(),
-                    "inverse": cell.inverse(),
-                }
-                cell_changes = {}
-                for key in cur_cell:
-                    if cur_cell[key] != prev_cell[key]:
-                        cell_changes[key] = cur_cell[key]
+                cell_changes = self._diff_cell(
+                    screen[i][j],
+                    {
+                        "contents": cell.contents(),
+                        "fgcolor": cell.fgcolor().color(),
+                        "bgcolor": cell.bgcolor().color(),
+                        "bold": cell.bold(),
+                        "italic": cell.italic(),
+                        "underline": cell.underline(),
+                        "inverse": cell.inverse(),
+                    }
+                )
 
                 if len(cell_changes) > 0:
                     changes.append({
@@ -109,6 +107,14 @@ class Handler(object):
                     })
 
         return changes
+
+    def _diff_cell(self, prev_cell, cur_cell):
+        cell_changes = {}
+        for key in cur_cell:
+            if cur_cell[key] != prev_cell[key]:
+                cell_changes[key] = cur_cell[key]
+
+        return cell_changes
 
     def total_time(self):
         return self._human_readable_duration(time.time() - self.created_at)
