@@ -13,6 +13,7 @@
 
 .term table {
     border-collapse: collapse;
+    color: #d3d3d3;
     background-color: black;
 }
 
@@ -345,9 +346,6 @@ socket.onmessage = function (e) {
             td.innerHTML = contents;
             if (update.cell.fgcolor) {
                 td.style.setProperty('color', colors[update.cell.fgcolor]);
-            }
-            else {
-                td.style.setProperty('color', "#FFFFFF");
             }
             if (update.cell.bgcolor) {
                 td.style.setProperty('background-color', colors[update.cell.bgcolor]);
