@@ -357,25 +357,36 @@ socket.onmessage = function (e) {
                 td.innerHTML = contents;
             }
             if (update.cell.hasOwnProperty('fgcolor')) {
-                if (update.cell.fgcolor != null) {
-                    var fgcolor = update.cell.fgcolor;
-                    if (update.cell.hasOwnProperty('bold')) {
-                        if (update.cell.bold && fgcolor < 8) {
-                            fgcolor += 8;
-                        }
+                var inverse = update.cell.inverse;
+                var fgcolor = update.cell.fgcolor;
+                var bgcolor = update.cell.bgcolor;
+                var style = inverse ? 'background-color' : 'color';
+                if (inverse && fgcolor == bgcolor) {
+                    td.style.setProperty(style, '#d3d3d3');
+                }
+                else if (fgcolor != null) {
+                    if (update.cell.bold && fgcolor < 8) {
+                        fgcolor += 8;
                     }
-                    td.style.setProperty('color', colors[fgcolor]);
+                    td.style.setProperty(style, colors[fgcolor]);
                 }
                 else {
-                    td.style.removeProperty('color');
+                    td.style.removeProperty(style);
                 }
             }
             if (update.cell.hasOwnProperty('bgcolor')) {
-                if (update.cell.bgcolor != null) {
-                    td.style.setProperty('background-color', colors[update.cell.bgcolor]);
+                var inverse = update.cell.inverse;
+                var fgcolor = update.cell.fgcolor;
+                var bgcolor = update.cell.bgcolor;
+                var style = inverse ? 'color' : 'background-color';
+                if (inverse && bgcolor == fgcolor) {
+                    td.style.setProperty(style, 'black');
+                }
+                else if (bgcolor != null) {
+                    td.style.setProperty(style, colors[bgcolor]);
                 }
                 else {
-                    td.style.removeProperty('background-color');
+                    td.style.removeProperty(style);
                 }
             }
             if (update.cell.hasOwnProperty('italic')) {

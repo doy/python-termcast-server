@@ -114,11 +114,21 @@ class Handler(object):
             if cur_cell[key] != prev_cell[key]:
                 cell_changes[key] = cur_cell[key]
 
+        if "fgcolor" in cell_changes:
+            cell_changes["bgcolor"] = cur_cell["bgcolor"]
+            cell_changes["bold"] = cur_cell["bold"]
+            cell_changes["inverse"] = cur_cell["inverse"]
+
+        if "bgcolor" in cell_changes:
+            cell_changes["fgcolor"] = cur_cell["fgcolor"]
+            cell_changes["inverse"] = cur_cell["inverse"]
+
         if "bold" in cell_changes:
             cell_changes["fgcolor"] = cur_cell["fgcolor"]
 
-        if "fgcolor" in cell_changes:
-            cell_changes["bold"] = cur_cell["bold"]
+        if "inverse" in cell_changes:
+            cell_changes["fgcolor"] = cur_cell["fgcolor"]
+            cell_changes["bgcolor"] = cur_cell["bgcolor"]
 
         return cell_changes
 
