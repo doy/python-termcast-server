@@ -125,7 +125,11 @@ class Connection(object):
     def _send_all(self, data):
         total_sent = 0
         while total_sent < len(data):
-            total_sent += self.chan.send(data[total_sent:])
+            try:
+                total_sent += self.chan.send(data[total_sent:])
+            except Exception as e:
+                print("*** send failed: " + str(e))
+                break
 
     def _display_streamer_screen(self, streamers):
         self._send_all("\033[H\033[2JWelcome to Termcast!")
