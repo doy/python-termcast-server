@@ -3,6 +3,7 @@ import paramiko
 import select
 import threading
 import time
+import traceback
 
 class Connection(object):
     def __init__(self, client, connection_id, publisher, keyfile):
@@ -128,6 +129,7 @@ class Connection(object):
             try:
                 total_sent += self.chan.send(data[total_sent:])
             except Exception as e:
+                print(traceback.format_exc())
                 print("*** send failed: " + str(e))
                 break
 

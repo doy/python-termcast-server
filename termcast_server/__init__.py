@@ -2,6 +2,7 @@ import signal
 import socket
 import sys
 import threading
+import traceback
 import uuid
 
 from . import pubsub
@@ -69,6 +70,7 @@ class Server(object):
                 sock.listen(100)
                 client, addr = sock.accept()
             except Exception as e:
+                print(traceback.format_exc())
                 print('*** Listen/accept failed: ' + str(e))
                 continue
 
@@ -81,6 +83,7 @@ class Server(object):
         try:
             connection.run()
         except Exception as e:
+            print(traceback.format_exc())
             print('Running connection failed: ' + str(e))
         self.publisher.unsubscribe(connection)
         client.close()

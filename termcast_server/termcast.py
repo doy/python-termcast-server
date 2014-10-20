@@ -1,7 +1,8 @@
-import time
 import json
 import re
 import ssl
+import time
+import traceback
 
 import vt100
 
@@ -213,6 +214,7 @@ class Connection(object):
             try:
                 buf = self.client.recv(1024)
             except Exception as e:
+                print(traceback.format_exc())
                 print('*** recv failed: ' + str(e))
 
             if len(buf) > 0:
@@ -290,6 +292,7 @@ class Connection(object):
                 self.client, server_side=True
             )
         except Exception as e:
+            print(traceback.format_exc())
             print('*** TLS connection failed: ' + str(e))
             return False
 
