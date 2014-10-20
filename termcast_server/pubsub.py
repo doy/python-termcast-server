@@ -11,21 +11,21 @@ class Publisher(object):
             self.subscribers.remove(who)
 
     def request_all(self, message, *args):
+        method = "request_" + message
         ret = []
         for subscriber in self.subscribers:
-            method = "request_" + message
             if hasattr(subscriber, method):
                 ret.append(getattr(subscriber, method)(*args))
         return ret
 
     def request_one(self, message, *args):
+        method = "request_" + message
         for subscriber in self.subscribers:
-            method = "request_" + message
             if hasattr(subscriber, method):
                 return getattr(subscriber, method)(*args)
 
     def notify(self, message, *args):
+        method = "msg_" + message
         for subscriber in self.subscribers:
-            method = "msg_" + message
             if hasattr(subscriber, method):
                 getattr(subscriber, method)(*args)
