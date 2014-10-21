@@ -84,6 +84,9 @@ class Handler(object):
         return term
 
     def get_term_updates(self, screen):
+        if self.rows != len(screen) or self.cols != len(screen[0]):
+            return None
+
         changes = []
         for i in range(0, self.rows):
             for j in range(0, self.cols):
