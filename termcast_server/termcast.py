@@ -72,8 +72,8 @@ class Handler(object):
                 cell = self.vt.cell(i, j)
                 term[i].append({
                     "c": cell.contents(),
-                    "f": cell.fgcolor().color(),
-                    "b": cell.bgcolor().color(),
+                    "f": cell.fgcolor(),
+                    "b": cell.bgcolor(),
                     "o": cell.bold(),
                     "i": cell.italic(),
                     "u": cell.underline(),
@@ -92,8 +92,8 @@ class Handler(object):
                     screen[i][j],
                     {
                         "c": cell.contents(),
-                        "f": cell.fgcolor().color(),
-                        "b": cell.bgcolor().color(),
+                        "f": cell.fgcolor(),
+                        "b": cell.bgcolor(),
                         "o": cell.bold(),
                         "i": cell.italic(),
                         "u": cell.underline(),
