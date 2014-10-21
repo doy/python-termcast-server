@@ -244,12 +244,18 @@ class Connection(object):
             self.handler.get_term(),
             None
         )
-        self.client.send(b"msg watcher connected\n")
+        try:
+            self.client.send(b"msg watcher connected\n")
+        except Exception as e:
+            print("*** send failed (watcher connect message): " + str(e))
 
     def msg_viewer_disconnect(self, connection_id):
         if connection_id != self.connection_id:
             return
-        self.client.send(b"msg watcher disconnected\n")
+        try:
+            self.client.send(b"msg watcher disconnected\n")
+        except Exception as e:
+            print("*** send failed (watcher disconnect message): " + str(e))
         self.viewers -= 1
 
     def request_get_streamers(self):
