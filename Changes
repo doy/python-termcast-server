@@ -1,5 +1,10 @@
 Revision history for termcast_server
 
+0.1.2  2014-10-22
+    - Better error handling - hopefully the server shouldn't die randomly on
+      connection timeouts anymore
+    - A few more bug fixes to the web interface
+
 0.1.1  2014-10-16
     - Basic SSL support. This is undocumented and preliminary - it could change
       at any point.
