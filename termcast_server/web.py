@@ -24,7 +24,14 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             streamers = self.publisher.request_all("get_streamers")
             reply = {
                 "type": "streamer_list",
-                "streamers": [ { "id": s["id"], "name": s["name"].decode('utf-8', 'replace') } for s in streamers ],
+                "streamers": [
+                    {
+                        "id": s["id"],
+                        "name": s["name"].decode('utf-8', 'replace'),
+                        "idle_since": s["idle_since"],
+                        "created_at": s["created_at"],
+                    } for s in streamers
+                ],
             }
             self.write_message(json.dumps(reply))
         elif data["type"] == "start_watching":

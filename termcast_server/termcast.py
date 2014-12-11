@@ -138,39 +138,6 @@ class Handler(object):
 
         return cell_changes
 
-    def total_time(self):
-        return self._human_readable_duration(time.time() - self.created_at)
-
-    def idle_time(self):
-        return self._human_readable_duration(time.time() - self.idle_since)
-
-    def _human_readable_duration(self, duration):
-        days = 0
-        hours = 0
-        minutes = 0
-        seconds = 0
-
-        if duration > 60*60*24:
-            days = duration // (60*60*24)
-            duration -= days * 60*60*24
-        if duration > 60*60:
-            hours = duration // (60*60)
-            duration -= hours * 60*60
-        if duration > 60:
-            minutes = duration // 60
-            duration -= minutes * 60
-        seconds = duration
-
-        ret = "%02ds" % seconds
-        if minutes > 0 or hours > 0 or days > 0:
-            ret = ("%02dm" % minutes) + ret
-        if hours > 0 or days > 0:
-            ret = ("%02dh" % hours) + ret
-        if days > 0:
-            ret = ("%dd" % days) + ret
-
-        return ret
-
 class Connection(object):
     def __init__(self, client, connection_id, publisher, pemfile):
         self.client = client
@@ -267,8 +234,8 @@ class Connection(object):
             "id": self.connection_id,
             "rows": self.handler.rows,
             "cols": self.handler.cols,
-            "idle_time": self.handler.idle_time(),
-            "total_time": self.handler.total_time(),
+            "idle_since": self.handler.idle_since,
+            "created_at": self.handler.created_at,
             "viewers": self.viewers,
         }
 

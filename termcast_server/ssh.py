@@ -147,8 +147,8 @@ class Connection(object):
             rows = streamer["rows"]
             cols = streamer["cols"]
             viewers = streamer["viewers"]
-            idle = streamer["idle_time"]
-            total = streamer["total_time"]
+            idle = time.time() - streamer["idle_since"]
+            total = time.time() - streamer["created_at"]
             size = "(%dx%d)" % (cols, rows)
             size_pre = ""
             size_post = ""
@@ -158,11 +158,40 @@ class Connection(object):
             self._send_all(
                 "\033[%dH%s) %-20s  %s%-15s%s  %-10s  %-12s  %-15s" % (
                     row, key, name, size_pre, size, size_post,
-                    viewers, idle, total
+                    viewers,
+                    self._human_readable_duration(idle),
+                    self._human_readable_duration(total)
                 )
             )
             row += 1
         self._send_all("\033[%dHChoose a stream: " % (row + 1))
+
+    def _human_readable_duration(self, duration):
+        days = 0
+        hours = 0
+        minutes = 0
+        seconds = 0
+
+        if duration > 60*60*24:
+            days = duration // (60*60*24)
+            duration -= days * 60*60*24
+        if duration > 60*60:
+            hours = duration // (60*60)
+            duration -= hours * 60*60
+        if duration > 60:
+            minutes = duration // 60
+            duration -= minutes * 60
+        seconds = duration
+
+        ret = "%02ds" % seconds
+        if minutes > 0 or hours > 0 or days > 0:
+            ret = ("%02dm" % minutes) + ret
+        if hours > 0 or days > 0:
+            ret = ("%02dh" % hours) + ret
+        if days > 0:
+            ret = ("%dd" % days) + ret
+
+        return ret
 
     def _cleanup_watcher(self):
         self.publisher.notify(
